@@ -4,21 +4,22 @@
 #include <Arduino.h>
 
 enum class TimerType { ONCE, REPEAT };
+// ONCE: Run the timer once and stop
+// REPEAT: Run the timer and repeat
 
 class Timer 
 {
 public:
-    Timer(TimerType type);
-    void Start(void (*func)(), int milliseconds); // Start a timer and provide a function that needs to run when it finished
-    void Update(); // Call this in the loop to run the timer.
-    // ONCE: Run the timer once and stop
-    // REPEAT: Run the timer and repeat
+    Timer(TimerType type);                                                  // constructor
+    void Start(const void (*func)(), int milliseconds);                     // Start a timer and provide a function that needs to run when it finished
+    void Update();                                                          // Call this in the loop to run the timer.
+    
 private:
-    void* callback;
-    unsigned long start;
-    unsigned long interval;
-    bool running;
-    TimerType type;
+    void* callback;                                                         // pointer to callback function
+    unsigned long start;                                                    // starting time
+    unsigned long interval;                                                 // time interval
+    bool running;                                                           // is the timer running
+    TimerType type;                                                         // type of timer
 };
 
 

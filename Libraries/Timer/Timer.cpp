@@ -8,22 +8,24 @@ Timer::Timer(TimerType type)
     interval = 0;
 }
 
-void Timer::Start(void (*func)(), int milliseconds) 
+void Timer::Start(const void (*func)(), int milliseconds) 
 {
     if(running) return; // Prevent from running multiple times
     callback = func;
     start = millis();
-    interval = milliseconds;
-    running = true;
+    interval = milliseconds; 
+    running = true; 
 }
 
 void Timer::Update() {
     if(!running) return; // No need to update if it's not running
     
+    // Check if the time has passed
     if(millis() - start >= interval) 
     {
         running = false;
         ((void (*)())callback)();
+        // If it's a repeat timer, start it again
         if(type == TimerType::REPEAT) 
         {
             running = true;
