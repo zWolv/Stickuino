@@ -12,7 +12,7 @@ void setup()
   // put your setup code here, to run once:
   //Serial.begin(9600);  -- takes up a LOT of memory. -> use lcd for debugging
   pinMode(13, OUTPUT);
-  //t.Start(&turnon, 5000);
+  //t.Start(turnon, 5000);
   lcd.begin(16, 2);
   lcd.print("nothing is");
   lcd.setCursor(0,1);
