@@ -15,7 +15,7 @@ public:
     void Update();                                                          // Call this in the loop to run the timer.
     
 private:
-    void* callback;                                                         // pointer to callback function
+    void  (*callback)();                                                    // pointer to callback function
     unsigned long start;                                                    // starting time
     unsigned long interval;                                                 // time interval
     bool running;                                                           // is the timer running
