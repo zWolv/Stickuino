@@ -1,6 +1,5 @@
 #include "States.h"
 
-
 // Idle state
 // green led on
 Idle::Idle() 

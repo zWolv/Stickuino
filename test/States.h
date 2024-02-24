@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <StateMachine.h>
 #include <Timer.h>
+#include "Globals.h"
 
 class Idle : State {
   public:
