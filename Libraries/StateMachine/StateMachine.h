@@ -1,6 +1,8 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
+#include <Arduino.h>
+
 enum Event {
     START,
     END_USE,
@@ -15,9 +17,14 @@ enum Event {
 class State 
 {
 public:
-    virtual void enter(Event event) = 0;
-    virtual void update(Event event) = 0;
-    virtual void exit() = 0;
+    State();
+    
+public:
+    void enter(Event event);
+    void exit();
+    
+protected:
+    int stateLED[3];
 };
 
 class StateMachine 
@@ -28,7 +35,7 @@ public:
     void setState(State* state);
     State* getState() const;
 
-    void processEvent(Event event);
+    //void processEvent(Event event);
 
 private:
     State* state;
