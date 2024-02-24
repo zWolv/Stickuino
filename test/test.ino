@@ -13,6 +13,9 @@ void setup()
 {
   // put your setup code here, to run once:
   //Serial.begin(9600);  -- takes up a LOT of memory. -> use lcd for debugging
+  pinMode(greenLED, OUTPUT);
+  pinMode(redLED, OUTPUT);
+  pinMode(blueLED, OUTPUT);
   pinMode(13, OUTPUT);
   //t.Start(turnon, 5000);
   lcd.begin(16, 2);

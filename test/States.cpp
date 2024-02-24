@@ -3,35 +3,54 @@
 
 // Idle state
 // green led on
-Idle::Idle()
-= default;
+Idle::Idle() 
+{
+    stateLED[0] = greenLED;
+}
 
 // In use - type of use unknown
 // green + blue led on
 UnknownUse::UnknownUse() 
-= default;
+{
+    stateLED[0] = greenLED;
+    stateLED[1] = blueLED;
+}
 
 // In use - number 1 use
 // green + red led on
 Use1::Use1()
-= default;
+{
+    stateLED[0] = greenLED;
+    stateLED[1] = redLED;
+}
 
 // In use - number 2 use
 // red led on
 Use2::Use2()
-= default;
+{
+    stateLED[0] = redLED;
+}
 
 // In use - cleaning
 // blue led on
 Cleaning::Cleaning()
-= default;
+{
+    stateLED[0] = blueLED;
+}
 
 // triggered - spray-shot imminent
 // all leds on
 Triggered::Triggered()
-= default;
+{
+    stateLED[0] = greenLED;
+    stateLED[1] = redLED;
+    stateLED[2] = blueLED;
+}
 
 // operator menu active
 // red + blue led on
 InMenu::InMenu()
-= default;
+{
+    stateLED[0] = redLED;
+    stateLED[1] = blueLED;
+}
