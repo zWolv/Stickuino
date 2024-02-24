@@ -6,7 +6,7 @@ State::State() {
     }
 }
 
-void State::enter(Event event) 
+void State::enter() 
 {
     for(int i : stateLED) {
         if(i != -1) {
@@ -34,17 +34,10 @@ void StateMachine::setState(State* state)
 {
     (this->state)->exit();
     (this->state) = state;
-    (this->state)->enter(Event::START);
+    (this->state)->enter();
 }
 
 State* StateMachine::getState() const 
 {
     return state;
 }
-
-/*
-void StateMachine::processEvent(Event event) 
-{
-    state->update(event);
-}
-*/
