@@ -41,6 +41,9 @@ void setup()
 
 void loop() 
 {
+  lcd->setCursor(0,0);
+  sensor.requestTemperatures();
+  lcd->print(sensor.getTempCByIndex(0));
   // put your main code here, to run repeatedly:
   //t.Update();
 }
