@@ -4,8 +4,16 @@
 #include <PinChangeInterrupt.h>
 #include "States.h"
 #include "Globals.h"
+#include <DallasTemperature.h>
+#include <OneWire.h>
+
+const int tempPin = 6;
+OneWire oneWire(2);
+DallasTemperature sensor(&oneWire);
+
+
 Timer t = {TimerType::REPEAT};
-const int rs, en, d4, d5, d6, d7;
+const int rs = 12, en = 11, d4 = 5 , d5= 4, d6 = 3, d7 = 2;
 
 LiquidCrystal* lcd = &LiquidCrystal(rs, en, d4, d5, d6, d7);
 int greenLED = 5;
@@ -28,6 +36,7 @@ void setup()
   lcd->print("nothing is");
   lcd->setCursor(0,1);
   lcd->print("happening");
+  sensor.begin();
 }
 
 void loop() 
@@ -67,5 +76,10 @@ void turnoff()
   digitalWrite(13, LOW);
   t.Start(&turnon, 5000);
 }*/
+
+void temperature()
+{
+
+}
 
 

@@ -27,7 +27,7 @@ void State::exit()
 StateMachine::StateMachine(State* state) 
 {
     this->state = state;
-    state->enter(Event::START);
+    state->enter();
 }
 
 void StateMachine::setState(State* state) 
