@@ -24,20 +24,30 @@ void State::exit()
     }
 }
 
-StateMachine::StateMachine(State* state) 
+void State::update() 
+{
+    return;
+}
+
+StateMachine::StateMachine(const State& state) 
 {
     this->state = state;
-    state->enter();
+    state.enter();
 }
 
-void StateMachine::setState(State* state) 
+void StateMachine::setState(const State& state) 
 {
-    (this->state)->exit();
+    (this->state).exit();
     (this->state) = state;
-    (this->state)->enter();
+    (this->state).enter();
 }
 
-State* StateMachine::getState() const 
+State StateMachine::getState() const 
 {
     return state;
+}
+
+void StateMachine::update() 
+{
+    state.update();
 }

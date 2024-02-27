@@ -6,37 +6,37 @@
 #include <Timer.h>
 #include "Globals.h"
 
-class Idle : State {
+class Idle : public State {
   public:
     Idle();
 };
 
-class UnknownUse : State {
+class UnknownUse : public State {
   public:
     UnknownUse();
 };
 
-class Use1 : State {
+class Use1 : public State {
   public:
     Use1();
 };
 
-class Use2 : State {
+class Use2 : public State {
   public:
     Use2();
 };
 
-class Cleaning : State {
+class Cleaning : public State {
   public:
     Cleaning();
 };
 
-class Triggered : State {
+class Triggered : public State {
   public:
     Triggered();
 };
 
-class InMenu : State {
+class InMenu : public State {
   public:
     InMenu();
 };

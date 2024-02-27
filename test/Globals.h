@@ -3,11 +3,11 @@
 
 #include <LiquidCrystal.h>
 
-extern int redLED;
-extern int greenLED;
-extern int blueLED;
-extern const int tempPin;
-extern const int rs, en, d4, d5, d6, d7;
-extern LiquidCrystal* lcd;
+static int redLED = 8;
+static int greenLED = 7;
+static int yellowLED = 6;
+static int tempPin = 9;
+static int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+static LiquidCrystal lcd = LiquidCrystal(rs, en, d4, d5, d6, d7);
 
 #endif

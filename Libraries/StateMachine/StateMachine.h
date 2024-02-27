@@ -11,6 +11,7 @@ public:
 public:
     void enter();
     void exit();
+    void update();
 
 protected:
     int stateLED[3];
@@ -19,13 +20,13 @@ protected:
 class StateMachine 
 {
 public:
-    StateMachine(State* state);
+    StateMachine(const State& state);
 
-    void setState(State* state);
-    State* getState() const;
-
+    void setState(const State& state);
+    State getState() const;
+    void update();
 private:
-    State* state;
+    State state;
 };
 
 

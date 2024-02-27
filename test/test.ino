@@ -7,44 +7,30 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
-const int tempPin = 6;
-OneWire oneWire(2);
+OneWire oneWire(tempPin);
 DallasTemperature sensor(&oneWire);
 
+Timer t(TimerType::REPEAT);
 
-Timer t = {TimerType::REPEAT};
-const int rs = 12, en = 11, d4 = 5 , d5= 4, d6 = 3, d7 = 2;
+StateMachine sm((Idle) Idle());
 
-LiquidCrystal* lcd = &LiquidCrystal(rs, en, d4, d5, d6, d7);
-int greenLED = 5;
-int redLED = 6;
-int blueLED = 7;
-
-Idle idle;
-
-void setup() 
-{
-  greenLED = 1;
-  // put your setup code here, to run once:
-  //Serial.begin(9600);  -- takes up a LOT of memory. -> use lcd for debugging
+void setup() {
+  Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
-  pinMode(blueLED, OUTPUT);
-  pinMode(13, OUTPUT);
+  pinMode(yellowLED, OUTPUT);
   //t.Start(turnon, 5000);
-  lcd->begin(16, 2);
-  lcd->print("nothing is");
-  lcd->setCursor(0,1);
-  lcd->print("happening");
   sensor.begin();
 }
 
-void loop() 
-{
-  lcd->setCursor(0,0);
-  sensor.requestTemperatures();
-  lcd->print(sensor.getTempCByIndex(0));
-  // put your main code here, to run repeatedly:
+void loop() {
+  //lcd.clear();
+  //lcd.setCursor(0,0);
+  //sensor.requestTemperatures();
+  //float temp = sensor.getTempC(0);
+  //Serial.println(String(temp));
+  //delay(1000);
+  //lcd.print(String(sensor.getTempCByIndex(0)));
   //t.Update();
 }
 
@@ -80,9 +66,5 @@ void turnoff()
   t.Start(&turnon, 5000);
 }*/
 
-void temperature()
-{
-
+void temperature() {
 }
-
-
