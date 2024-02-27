@@ -10,9 +10,9 @@
 OneWire oneWire(tempPin);
 DallasTemperature sensor(&oneWire);
 
-Timer t(TimerType::REPEAT);
+Timer temperatureTimer(TimerType::REPEAT);
 
-StateMachine sm((Idle) Idle());
+StateMachine sm((Idle)Idle());
 
 void setup() {
   Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
@@ -21,17 +21,12 @@ void setup() {
   pinMode(yellowLED, OUTPUT);
   //t.Start(turnon, 5000);
   sensor.begin();
+  temperatureTimer.Start(temperature, 2500);
 }
 
+
 void loop() {
-  //lcd.clear();
-  //lcd.setCursor(0,0);
-  //sensor.requestTemperatures();
-  //float temp = sensor.getTempC(0);
-  //Serial.println(String(temp));
-  //delay(1000);
-  //lcd.print(String(sensor.getTempCByIndex(0)));
-  //t.Update();
+  temperatureTimer.Update();
 }
 
 /*
@@ -67,4 +62,9 @@ void turnoff()
 }*/
 
 void temperature() {
+  lcd.clear();
+  lcd.setCursor(0,0);
+  sensor.requestTemperatures();
+  float temp = sensor.getTempCByIndex(0);
+  lcd.print((String)temp + " C");
 }
