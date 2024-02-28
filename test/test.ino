@@ -6,6 +6,7 @@
 #include "Globals.h"
 #include <DallasTemperature.h>
 #include <OneWire.h>
+#include <Button.h>
 
 OneWire oneWire(tempPin);
 DallasTemperature sensor(&oneWire);
@@ -13,6 +14,10 @@ DallasTemperature sensor(&oneWire);
 Timer temperatureTimer(TimerType::REPEAT);
 
 StateMachine sm((Idle)Idle());
+
+Button manualOverrideButton(manualOverridePin, manualOverride);
+
+int overrideSprayDelay = 0;
 
 void setup() {
   Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
@@ -67,4 +72,15 @@ void temperature() {
   sensor.requestTemperatures();
   float temp = sensor.getTempCByIndex(0);
   lcd.print((String)temp + " C");
+}
+
+void manualOverride() {
+  sm.setState((Triggered)Triggered());
+  spray();
+  sm.setState((Idle)Idle());
+}
+
+
+void spray() {
+  // code to spray
 }

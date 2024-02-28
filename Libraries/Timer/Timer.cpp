@@ -24,7 +24,8 @@ void Timer::Update() {
     if(millis() - start >= interval) 
     {
         running = false;
-        (*callback)();
+        if(callback != nullptr)
+            (*callback)();
         // If it's a repeat timer, start it again
         if(type == TimerType::REPEAT) 
         {
