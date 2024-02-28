@@ -15,7 +15,7 @@ Timer temperatureTimer(TimerType::REPEAT);
 
 StateMachine sm((Idle)Idle());
 
-Button manualOverrideButton(manualOverridePin, manualOverride);
+Button manualOverrideButton(manualOverridePin);
 
 int overrideSprayDelay = 0;
 
@@ -76,11 +76,11 @@ void temperature() {
 
 void manualOverride() {
   sm.setState((Triggered)Triggered());
-  spray();
+  spray([](){});
   sm.setState((Idle)Idle());
 }
 
 
-void spray() {
+void spray(void (*function)()) {
   // code to spray
 }

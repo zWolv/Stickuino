@@ -7,8 +7,9 @@
 class Button 
 {
 public:
-    Button(int pin, void (*function)());
+    Button(int pin);
     void update();
+    void setCallback(void (*function)());
 private:
     int previousState = HIGH;
     int debouncedState = HIGH;

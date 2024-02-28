@@ -3,6 +3,7 @@
 
 #include <LiquidCrystal.h>
 
+static const int manualOverridePin = 13;
 static const int redLED = 8;
 static const int greenLED = 7;
 static const int yellowLED = 6;

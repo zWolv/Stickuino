@@ -1,13 +1,13 @@
 #include "Button.h"
 
-Button::Button(int pin, void (*function)())
+Button::Button(int pin)
 {
     this->pin = pin;
-    this->function = function;
+    function = nullptr;
     pinMode(pin, INPUT);
 }
 
-Button::update() 
+void Button::update() 
 {
     int reading = digitalRead(pin);
     if(reading != previousState) 
@@ -26,4 +26,9 @@ Button::update()
             }
         }
     }
+}
+
+void Button::setCallback(void (*function)()) 
+{
+    this->function = function;
 }
