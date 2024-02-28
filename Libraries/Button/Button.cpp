@@ -7,7 +7,7 @@ Button::Button(int pin)
     pinMode(pin, INPUT);
 }
 
-void Button::update() 
+void Button::Update() 
 {
     int reading = digitalRead(pin);
     if(reading != previousState) 
@@ -28,7 +28,7 @@ void Button::update()
     }
 }
 
-void Button::setCallback(void (*function)()) 
+void Button::SetCallback(void (*function)()) 
 {
     this->function = function;
 }

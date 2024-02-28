@@ -6,7 +6,7 @@ State::State() {
     }
 }
 
-void State::enter() 
+void State::Enter() 
 {
     for(int i : stateLED) {
         if(i != -1) {
@@ -15,7 +15,7 @@ void State::enter()
     }
 }
 
-void State::exit() 
+void State::Exit() 
 {
     for(int i : stateLED) {
         if(i != -1) {
@@ -24,7 +24,7 @@ void State::exit()
     }
 }
 
-void State::update() 
+void State::Update() 
 {
     return;
 }
@@ -32,22 +32,22 @@ void State::update()
 StateMachine::StateMachine(const State& state) 
 {
     this->state = state;
-    state.enter();
+    state.Enter();
 }
 
-void StateMachine::setState(const State& state) 
+void StateMachine::SetState(const State& state) 
 {
-    (this->state).exit();
+    (this->state).Exit();
     (this->state) = state;
-    (this->state).enter();
+    (this->state).Enter();
 }
 
-State StateMachine::getState() const 
+State StateMachine::GetState() const 
 {
     return state;
 }
 
-void StateMachine::update() 
+void StateMachine::Update() 
 {
-    state.update();
+    state.Update();
 }

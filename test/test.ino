@@ -24,19 +24,21 @@ void setup() {
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(yellowLED, OUTPUT);
-  //t.Start(turnon, 5000);
+  //t.Start(Turnon, 5000);
   sensor.begin();
   temperatureTimer.Start(temperature, 2500);
+  manualOverrideButton.SetCallback(ManualOverride);
 }
 
 
 void loop() {
   temperatureTimer.Update();
+  manualOverrideButton.Update();
 }
 
 /*
 // Used to test the TimerType::REPEAT
-void increment() 
+void Increment() 
 {
   p++;
   lcd.clear();
@@ -44,7 +46,7 @@ void increment()
 }
 
 //Used to test the TimerType::ONCE and lcd printing for debugging
-void turnon() 
+void Turnon() 
 {
   lcd.clear();
   lcd.print(F("turned on"));
@@ -57,7 +59,7 @@ void turnon()
   //t.Start(&turnoff, 5000);
 }
 
-void turnoff() 
+void Turnoff() 
 {
   lcd.clear();
   lcd.print("turned off");
@@ -68,19 +70,19 @@ void turnoff()
 
 void temperature() {
   lcd.clear();
-  lcd.setCursor(0,0);
+  lcd.setCursor(0, 0);
   sensor.requestTemperatures();
   float temp = sensor.getTempCByIndex(0);
   lcd.print((String)temp + " C");
 }
 
-void manualOverride() {
-  sm.setState((Triggered)Triggered());
-  spray([](){});
-  sm.setState((Idle)Idle());
+void ManualOverride() {
+  sm.SetState((Triggered)Triggered());
+  Spray([]() {});
+  sm.SetState((Idle)Idle());
 }
 
 
-void spray(void (*function)()) {
+void Spray(void (*function)()) {
   // code to spray
 }

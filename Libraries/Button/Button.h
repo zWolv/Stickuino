@@ -8,8 +8,8 @@ class Button
 {
 public:
     Button(int pin);
-    void update();
-    void setCallback(void (*function)());
+    void Update();
+    void SetCallback(void (*function)());
 private:
     int previousState = HIGH;
     int debouncedState = HIGH;
