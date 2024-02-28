@@ -42,10 +42,10 @@ void setup() {
 
 
 void loop() {
+  // Compare the current state to see if we are in the menu
   if(sm.GetState() == &inMenu) {
     sprayTimer.Stop();
     sprayFinishedTimer.Stop();
-
   }
     sprayTimer.Update();
     sprayFinishedTimer.Update();
@@ -55,6 +55,7 @@ void loop() {
   sm.Update();
 }
 
+// Function to update the temperature on the LCD using a timer
 void temperature() {
   lcd.clear();
   sensor.requestTemperatures();
@@ -63,6 +64,7 @@ void temperature() {
   lcd.print((String)temp + " C");
 }
 
+// Function for the manual override interrupt
 void ManualOverride() {
   StartSpray([](){}, overrideSprayDelay);
 }
@@ -77,7 +79,7 @@ void Nr2() {
 
 // what to do when spray is done, and how long to wait before spraying
 void StartSpray(void (*function)(), int time) {
-  /*
+  /* broken
   sm.SetState(&(Triggered)Triggered());
   sprayTimer.Start(Spray, time); // Call spray after configurable delay
   sprayFinishedTimer.Start([&]() {
@@ -92,6 +94,6 @@ void Spray () {
 }
 
 void MenuOpenInterrupt() {
-  sm.NextState(&(InMenu)InMenu());
+  sm.NextState(&inMenu);
 }
 
