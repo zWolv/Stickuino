@@ -13,11 +13,21 @@ DallasTemperature sensor(&oneWire);
 
 Timer temperatureTimer(TimerType::REPEAT);
 
-StateMachine sm((Idle)Idle());
+Timer sprayTimer(TimerType::ONCE);
+
+Timer sprayFinishedTimer(TimerType::ONCE);
+
+StateMachine sm(&(Idle)Idle());
 
 Button manualOverrideButton(manualOverridePin);
 
-int overrideSprayDelay = 0;
+volatile int overrideSprayDelay = 0;
+
+volatile int nr2SprayDelay = 0;
+
+volatile int nr1SprayDelay = 0;
+
+InMenu inMenu;
 
 void setup() {
   Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
@@ -32,57 +42,56 @@ void setup() {
 
 
 void loop() {
+  if(sm.GetState() == &inMenu) {
+    sprayTimer.Stop();
+    sprayFinishedTimer.Stop();
+
+  }
+    sprayTimer.Update();
+    sprayFinishedTimer.Update();
+    manualOverrideButton.Update();
+  // Should temperature still be updated if we are in the menu?
   temperatureTimer.Update();
-  manualOverrideButton.Update();
+  sm.Update();
 }
-
-/*
-// Used to test the TimerType::REPEAT
-void Increment() 
-{
-  p++;
-  lcd.clear();
-  lcd.print(String(p));
-}
-
-//Used to test the TimerType::ONCE and lcd printing for debugging
-void Turnon() 
-{
-  lcd.clear();
-  lcd.print(F("turned on"));
-  //Serial.print("turned on");
-  digitalWrite(13, HIGH);
-  delay(2000);
-  digitalWrite(13, LOW);
-  lcd.clear();
-  lcd.print(F("turned off"));
-  //t.Start(&turnoff, 5000);
-}
-
-void Turnoff() 
-{
-  lcd.clear();
-  lcd.print("turned off");
-  //Serial.print("turned off");
-  digitalWrite(13, LOW);
-  t.Start(&turnon, 5000);
-}*/
 
 void temperature() {
   lcd.clear();
-  lcd.setCursor(0, 0);
   sensor.requestTemperatures();
   float temp = sensor.getTempCByIndex(0);
+  lcd.setCursor(0, 0);
   lcd.print((String)temp + " C");
 }
 
 void ManualOverride() {
-  sm.SetState((Triggered)Triggered());
-  Spray([]() {});
-  sm.SetState((Idle)Idle());
+  StartSpray([](){}, overrideSprayDelay);
+}
+// Following 3 functions should by in 'Triggered'
+void Nr1() {
+  StartSpray([](){}, nr1SprayDelay);
 }
 
-
-void Spray(void (*function)()) {
-  // code to spray
+void Nr2() {
+  StartSpray([](){StartSpray([](){}, 0);}, nr2SprayDelay); // don't wait with the second spray, only for the first one.
 }
+
+// what to do when spray is done, and how long to wait before spraying
+void StartSpray(void (*function)(), int time) {
+  /*
+  sm.SetState(&(Triggered)Triggered());
+  sprayTimer.Start(Spray, time); // Call spray after configurable delay
+  sprayFinishedTimer.Start([&]() {
+    sm.SetState(&(Idle)Idle());
+    (*function)();
+  }, time + 15000); // Spray happens after 15 seconds + configurable delay
+  */
+}
+
+void Spray () {
+  // spray!!!
+}
+
+void MenuOpenInterrupt() {
+  sm.NextState(&(InMenu)InMenu());
+}
+

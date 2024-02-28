@@ -9,9 +9,9 @@ public:
     State();
     
 public:
-    void Enter();
+    virtual void Enter();
     void Exit();
-    void Update();
+    virtual void Update();
 
 protected:
     int stateLED[3];
@@ -20,13 +20,15 @@ protected:
 class StateMachine 
 {
 public:
-    StateMachine(const State& state);
+    StateMachine(State* state);
 
-    void SetState(const State& state);
-    State GetState() const;
+    void SetState(State* state);
+    State* GetState() const;
+    void NextState(State* state);
     void Update();
 private:
-    State state;
+    volatile State* state;
+    volatile State* nextState;
 };
 
 

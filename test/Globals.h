@@ -3,12 +3,14 @@
 
 #include <LiquidCrystal.h>
 
-static const int manualOverridePin = 13;
-static const int redLED = 8;
-static const int greenLED = 7;
-static const int yellowLED = 6;
-static const int tempPin = 9;
-static const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+const int manualOverridePin = 13;
+const int menuButton1Pin = A1;
+const int menuButton2Pin = A0;
+const int redLED = 8;
+const int greenLED = 7;
+const int yellowLED = 6;
+const int tempPin = 9;
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 static LiquidCrystal lcd = LiquidCrystal(rs, en, d4, d5, d6, d7);
 
 #endif

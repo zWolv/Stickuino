@@ -8,7 +8,7 @@ Timer::Timer(TimerType type)
     interval = 0;
 }
 
-void Timer::Start(const void (*func)(), int milliseconds) 
+void Timer::Start(void (*func)(), int milliseconds) 
 {
     if(running) return; // Prevent from running multiple times
     callback = func;
@@ -33,4 +33,12 @@ void Timer::Update() {
             start = millis();
         }
     } 
+}
+
+void Timer::Stop()
+{
+    running = false;
+    callback = nullptr;
+    start = 0;
+    interval = 0;
 }

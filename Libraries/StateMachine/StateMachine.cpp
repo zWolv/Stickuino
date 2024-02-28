@@ -29,25 +29,31 @@ void State::Update()
     return;
 }
 
-StateMachine::StateMachine(const State& state) 
+StateMachine::StateMachine(State* state) 
 {
     this->state = state;
-    state.Enter();
+    state->Enter();
 }
 
-void StateMachine::SetState(const State& state) 
+void StateMachine::SetState(State* state) 
 {
-    (this->state).Exit();
+    (this->state)->Exit();
     (this->state) = state;
-    (this->state).Enter();
+    (this->state)->Enter();
 }
 
-State StateMachine::GetState() const 
+State* StateMachine::GetState() const 
 {
     return state;
 }
 
 void StateMachine::Update() 
 {
-    state.Update();
+        state->Update();
+        SetState(nextState);
+}
+
+void StateMachine::NextState(State* state) 
+{
+    nextState = state;
 }

@@ -11,9 +11,9 @@ class Timer
 {
 public:
     Timer(TimerType type);                                                  // constructor
-    void Start(const void (*func)(), int milliseconds);                     // Start a timer and provide a function that needs to run when it finished
+    void Start(void (*func)(), int milliseconds);                           // Start a timer and provide a function that needs to run when it finished
     void Update();                                                          // Call this in the loop to run the timer.
-    
+    void Stop();
 private:
     void  (*callback)();                                                    // pointer to callback function
     unsigned long start;                                                    // starting time
