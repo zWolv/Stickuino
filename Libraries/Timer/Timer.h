@@ -19,7 +19,7 @@ private:
     unsigned long start;                                                    // starting time
     unsigned long interval;                                                 // time interval
     bool running;                                                           // is the timer running
-    TimerType type;                                                         // type of timer
+    TimerType type;                                                         // type of timer                                                   
 };
 
 

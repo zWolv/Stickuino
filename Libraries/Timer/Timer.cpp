@@ -25,7 +25,7 @@ void Timer::Update() {
     {
         running = false;
         if(callback != nullptr)
-            (*callback)();
+            callback();
         // If it's a repeat timer, start it again
         if(type == TimerType::REPEAT) 
         {

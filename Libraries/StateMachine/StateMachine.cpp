@@ -1,6 +1,7 @@
 #include "StateMachine.h"
 
 State::State() {
+    name = "Base State";
     for(int i = 0; i < 3; i++) {
         stateLED[i] = -1;
     }
@@ -24,33 +25,37 @@ void State::Exit()
     }
 }
 
-void State::Update() 
+State& State::Update() 
 {
-    return;
+    return *this;
 }
 
 StateMachine::StateMachine(State* state) 
 {
     this->state = state;
-    state->Enter();
+    this->state->Enter();
 }
 
-void StateMachine::SetState(State* state) 
+void StateMachine::SetState(volatile State* state) 
 {
+    if(state == nullptr) return;
     (this->state)->Exit();
     (this->state) = state;
     (this->state)->Enter();
 }
 
-State* StateMachine::GetState() const 
+State& StateMachine::GetState() const 
 {
-    return state;
+    return *state;
 }
 
 void StateMachine::Update() 
 {
-        state->Update();
-        SetState(nextState);
+    State* next = &state->Update();
+    if(next != state)
+        SetState(next);
+    SetState(nextState);
+    nextState = nullptr;
 }
 
 void StateMachine::NextState(State* state) 

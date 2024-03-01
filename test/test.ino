@@ -13,21 +13,11 @@ DallasTemperature sensor(&oneWire);
 
 Timer temperatureTimer(TimerType::REPEAT);
 
-Timer sprayTimer(TimerType::ONCE);
-
 Timer sprayFinishedTimer(TimerType::ONCE);
 
-StateMachine sm(&(Idle)Idle());
+StateMachine sm(Triggered::GetInstance());
 
 Button manualOverrideButton(manualOverridePin);
-
-volatile int overrideSprayDelay = 0;
-
-volatile int nr2SprayDelay = 0;
-
-volatile int nr1SprayDelay = 0;
-
-InMenu inMenu;
 
 void setup() {
   Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
@@ -36,20 +26,19 @@ void setup() {
   pinMode(yellowLED, OUTPUT);
   //t.Start(Turnon, 5000);
   sensor.begin();
+  lcd.begin(16,2);
   temperatureTimer.Start(temperature, 2500);
-  manualOverrideButton.SetCallback(ManualOverride);
+  attachPCINT(digitalPinToPCINT(manualOverridePin), ManualOverrideISP, RISING);
+  attachPCINT(digitalPinToPCINT(menuButtonLeftPin), MenuOpenISP, RISING);
+  attachPCINT(digitalPinToPCINT(menuButtonRightPin), MenuOpenISP, RISING);
 }
 
 
 void loop() {
   // Compare the current state to see if we are in the menu
-  if(sm.GetState() == &inMenu) {
-    sprayTimer.Stop();
-    sprayFinishedTimer.Stop();
-  }
-    sprayTimer.Update();
-    sprayFinishedTimer.Update();
-    manualOverrideButton.Update();
+  manualOverrideButton.Update();
+  menuButtonLeft.Update();
+  menuButtonRight.Update();
   // Should temperature still be updated if we are in the menu?
   temperatureTimer.Update();
   sm.Update();
@@ -65,16 +54,23 @@ void temperature() {
 }
 
 // Function for the manual override interrupt
-void ManualOverride() {
-  StartSpray([](){}, overrideSprayDelay);
+void ManualOverrideISP() {
+  // Does this also work when in menu?
+  lcd.clear();
+  if (&sm.GetState() != InMenu::GetInstance())
+    sm.SetState(Triggered::GetInstance());
 }
+
 // Following 3 functions should by in 'Triggered'
 void Nr1() {
-  StartSpray([](){}, nr1SprayDelay);
+  StartSpray([]() {}, sprayDelay);
 }
 
 void Nr2() {
-  StartSpray([](){StartSpray([](){}, 0);}, nr2SprayDelay); // don't wait with the second spray, only for the first one.
+  StartSpray([]() {
+    StartSpray([]() {}, 0);
+  },
+             sprayDelay);  // don't wait with the second spray, only for the first one.
 }
 
 // what to do when spray is done, and how long to wait before spraying
@@ -89,11 +85,11 @@ void StartSpray(void (*function)(), int time) {
   */
 }
 
-void Spray () {
+void Spray() {
   // spray!!!
 }
 
-void MenuOpenInterrupt() {
-  sm.NextState(&inMenu);
+void MenuOpenISP() {
+  if (&sm.GetState() != InMenu::GetInstance())
+    sm.NextState(InMenu::GetInstance());
 }
-
