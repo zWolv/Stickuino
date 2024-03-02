@@ -6,6 +6,7 @@ Timer::Timer(TimerType type)
     callback = nullptr;
     start = 0;
     interval = 0;
+    running = false;
 }
 
 void Timer::Start(void (*func)(), int milliseconds) 
@@ -19,7 +20,6 @@ void Timer::Start(void (*func)(), int milliseconds)
 
 void Timer::Update() {
     if(!running) return; // No need to update if it's not running
-    
     // Check if the time has passed
     if(millis() - start >= interval) 
     {

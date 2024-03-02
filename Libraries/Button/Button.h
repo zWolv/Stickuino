@@ -12,6 +12,7 @@ public:
     bool IsClicked() const;
     unsigned long PressedFor() const;
     void SetCallback(void (*callback)());
+    unsigned long GetPressedAt() const;
 private:
     int previousState = HIGH;
     int debouncedState = HIGH;

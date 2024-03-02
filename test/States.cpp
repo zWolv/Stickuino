@@ -170,7 +170,7 @@ void Cleaning::Exit() {
 
 // triggered - spray-shot imminent
 // all leds on
-Triggered::Triggered() {
+Triggered::Triggered() : timer(TimerType::ONCE) {
   name = "Triggered";
   stateLED[0] = greenLED;
   stateLED[1] = redLED;
@@ -188,6 +188,7 @@ Triggered* Triggered::GetInstance() {
 
 void Triggered::Enter() {
   State::Enter();
+  
   //timer->Start(StaticTimerFunction, sprayDelay);  // use recursive function to call 'count' times
 }
 
@@ -204,7 +205,7 @@ void Triggered::TimerFunction() {
 
 void Triggered::Exit() {
   State::Exit();
-  timer->Stop();
+  timer.Stop();
   delete Triggered::instance;
   Triggered::instance = nullptr;
 }
@@ -241,11 +242,12 @@ InMenu* InMenu::GetInstance() {
 
 void InMenu::Enter() {
   State::Enter();
-  detachInterrupt(manualOverridePin);
-  detachInterrupt(menuButtonLeftPin);
-  detachInterrupt(menuButtonRightPin);
+  detachPCINT(manualOverridePin);
+  detachPCINT(menuButtonLeftPin);
+  detachPCINT(menuButtonRightPin);
   temperatureTimer.Stop();
   setting = 0;
+  previousSetting = -1;
   menuButtonLeft.SetCallback(LeftButton);
   menuButtonRight.SetCallback(RightButton);
 }
@@ -257,45 +259,54 @@ State& InMenu::Update() {
 
   switch (setting) {
     case 0:
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Sprays left:" + (String)sprayCount);
-      lcd.setCursor(0, 1);
-      lcd.print("Next");
-      lcd.setCursor(5, 1);
-      lcd.print("Quit");
-      lcd.setCursor(11, 1);
-      lcd.print("Reset");
+      if(previousSetting != setting) {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Sprays left:" + (String)sprayCount);
+        lcd.setCursor(0, 1);
+        lcd.print("Next");
+        lcd.setCursor(5, 1);
+        lcd.print("Quit");
+        lcd.setCursor(11, 1);
+        lcd.print("Reset");
+        previousSetting = setting;
+      }
       if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
       && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
         return *Idle::GetInstance();
       }
       break;
     case 1:
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Spray delay:" + (String)sprayDelay + "s");
-      lcd.setCursor(0, 1);
-      lcd.print("Next");
-      lcd.setCursor(5, 1);
-      lcd.print("Quit");
-      lcd.setCursor(10, 1);
-      lcd.print("Select");
+      if(previousSetting != setting) {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Spray delay:" + (String)sprayDelay + "s");
+        lcd.setCursor(0, 1);
+        lcd.print("Next");
+        lcd.setCursor(5, 1);
+        lcd.print("Quit");
+        lcd.setCursor(10, 1);
+        lcd.print("Select");
+        previousSetting = setting;
+      }
       if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
       && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
         return *Idle::GetInstance();
       }
       break;
     case -1:
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Spray delay:" + (String)sprayDelay + "s");
-      lcd.setCursor(0, 1);
-      lcd.print("-");
-      lcd.setCursor(7, 1);
-      lcd.print("Back");
-      lcd.setCursor(15, 1);
-      lcd.print("+");
+      if(previousSetting != setting) {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Spray delay:" + (String)sprayDelay + "s");
+        lcd.setCursor(0, 1);
+        lcd.print("-");
+        lcd.setCursor(7, 1);
+        lcd.print("Back");
+        lcd.setCursor(15, 1);
+        lcd.print("+");
+        previousSetting = setting;
+      }
       // Hold both buttons for 2 seconds to go back to selection.
       if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
       && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
@@ -310,15 +321,15 @@ State& InMenu::Update() {
 
 void InMenu::Exit() {
   State::Exit();
-  attachInterrupt(digitalPinToInterrupt(manualOverridePin), ManualOverrideISP, RISING);
-  attachInterrupt(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISP, RISING);
-  attachInterrupt(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISP, RISING);
+  attachPCINT(digitalPinToInterrupt(manualOverridePin), ManualOverrideISP, RISING);
+  attachPCINT(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISP, RISING);
+  attachPCINT(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISP, RISING);
   temperatureTimer.Start(temperature, 2500);
 }
 
 void InMenu::LeftButton() {
   // Left button action
-  if(menuButtonRight.IsClicked()) return;
+  Serial.println(F("Left button pressed"));
   switch (InMenu::GetInstance()->setting) {
     case 0:
       InMenu::GetInstance()->setting = 1;
@@ -334,8 +345,8 @@ void InMenu::LeftButton() {
 }
 
 void InMenu::RightButton() {
-  if(menuButtonLeft.IsClicked()) return;
   // Right button action
+  Serial.println(F("Right button pressed"));
   switch (InMenu::GetInstance()->setting) {
     case 0:
       sprayCount = 2400;
