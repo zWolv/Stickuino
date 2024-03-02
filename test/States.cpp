@@ -266,8 +266,14 @@ State& InMenu::Update() {
       lcd.print("Sprays left:" + (String)sprayCount);
       lcd.setCursor(0, 1);
       lcd.print("Next");
-      lcd.setCursor(10, 1);
+      lcd.setCursor(5, 1);
+      lcd.print("Quit");
+      lcd.setCursor(11, 1);
       lcd.print("Reset");
+      if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
+      && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
+        return *Idle::GetInstance();
+      }
       break;
     case 1:
       lcd.clear();
@@ -275,8 +281,14 @@ State& InMenu::Update() {
       lcd.print("Spray delay:" + (String)sprayDelay + "s");
       lcd.setCursor(0, 1);
       lcd.print("Next");
-      lcd.setCursor(9, 1);
+      lcd.setCursor(5, 1);
+      lcd.print("Quit");
+      lcd.setCursor(10, 1);
       lcd.print("Select");
+      if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
+      && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
+        return *Idle::GetInstance();
+      }
       break;
     case -1:
       lcd.clear();
@@ -284,7 +296,7 @@ State& InMenu::Update() {
       lcd.print("Spray delay:" + (String)sprayDelay + "s");
       lcd.setCursor(0, 1);
       lcd.print("-");
-      lcd.setCursor(5, 1);
+      lcd.setCursor(7, 1);
       lcd.print("Back");
       lcd.setCursor(15, 1);
       lcd.print("+");
