@@ -22,8 +22,9 @@ private:
     unsigned long pressedFor = 0;
     unsigned long pressedAt = 0;
     bool clicked = false;
+    unsigned long clickedAt = 0;
     int clickHoldTime = 250; // Time to keep the button marked as clicked to allow for using 2 buttons at the same time for a single action
-    void (callback*)(); // Pointer to a function that will be called when the button is clicked if a singular call is needed
+    void (*callback)(); // Pointer to a function that will be called when the button is clicked if a singular call is needed
 };
 
 

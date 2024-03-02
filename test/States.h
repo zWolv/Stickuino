@@ -80,8 +80,8 @@ public:
   void Enter() override;
   void Exit() override;
 private:
-  void LeftButton();
-  void RightButton();
+  static void LeftButton();
+  static void RightButton();
   static InMenu* instance;
   int setting;
   InMenu();

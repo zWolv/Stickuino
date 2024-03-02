@@ -319,12 +319,12 @@ void InMenu::Exit() {
 void InMenu::LeftButton() {
   // Left button action
   if(menuButtonRight.IsClicked()) return;
-  switch (setting) {
+  switch (InMenu::GetInstance()->setting) {
     case 0:
-      setting = 1;
+      InMenu::GetInstance()->setting = 1;
       break;
     case 1:
-      setting = 0;
+      InMenu::GetInstance()->setting = 0;
       break;
     case -1:
       sprayDelay = max(0, sprayDelay - 0.5f);
@@ -336,12 +336,12 @@ void InMenu::LeftButton() {
 void InMenu::RightButton() {
   if(menuButtonLeft.IsClicked()) return;
   // Right button action
-  switch (setting) {
+  switch (InMenu::GetInstance()->setting) {
     case 0:
       sprayCount = 2400;
       break;
     case 1:
-      setting = -1;
+      InMenu::GetInstance()->setting = -1;
       break;
     case -1:
       sprayDelay = min(INT8_MAX, sprayDelay + 0.5f);
