@@ -6,7 +6,6 @@
 #include <Timer.h>
 #include "Globals.h"
 #include <Button.h>
-#include <PinChangeInterrupt.h>
 
 /*
 extern Timer temperatureTimer;
@@ -103,6 +102,7 @@ private:
   int setting;
   InMenu();
   int previousSetting;
+  State* state;
 };
 
 #endif

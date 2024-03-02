@@ -6,15 +6,30 @@ Button::Button(int pin)
     pinMode(pin, INPUT);
 }
 
+Button::Button(int pin, PinType pinType)
+{
+    this->pin = pin;
+    pinMode(pin, INPUT);
+    this->pinType = pinType;
+}
+
 void Button::Update() 
 {
-    int analogReading = analogRead(pin);
-    int reading = (analogReading > 512) ? HIGH : LOW;
-    bool wasPressed = pressed;
+    int reading;
+    if(pinType == ANALOG) 
+    {
+        reading = analogRead(pin);
+        reading = reading > 512 ? HIGH : LOW;
+    }
+    else 
+    {
+        reading = digitalRead(pin);
+    }
+    wasPressed = pressed;
+
     if(reading != previousState) 
     {
         previousDebounceTime = millis();
-        
     }
 
     if(millis() - previousDebounceTime > debounceDelay) 
@@ -33,16 +48,18 @@ void Button::Update()
             else 
             {
                 pressed = false;
-                if(wasPressed)  // If the button was pressed in the last update
+                if(wasPressed)
                 {
-                    
-                    pressedFor = millis() - pressedAt;
+                    if(pressedAt != 0)
+                        pressedFor = millis() - pressedAt;
+                    pressedAt = 0;
+                    clicked = true;
+                    clickedAt = millis();
+
                     if(callback != nullptr && pressedFor < 500) 
                     {
-                    callback();
+                        callback();
                     }
-                    clicked = true;
-                    clickedAt = millis();  // Record the time when the button was clicked
                 }
             }
         }
@@ -66,10 +83,8 @@ unsigned long Button::PressedFor() const
 
 void Button::SetCallback(void (*callback)())
 {
+    // make sure the previous state is set to the current state when we want to use the callback.
+    previousState = digitalRead(pin);
+    debouncedState = previousState;
     this->callback = callback;
-}
-
-unsigned long Button::GetPressedAt() const
-{
-    return pressedAt;
 }

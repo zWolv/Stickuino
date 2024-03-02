@@ -1,7 +1,6 @@
 #include <Timer.h>
 #include <LiquidCrystal.h>
 #include <StateMachine.h>
-#include <PinChangeInterrupt.h>
 #include "States.h"
 #include "Globals.h"
 #include <DallasTemperature.h>
@@ -13,9 +12,9 @@ DallasTemperature sensor(&oneWire);
 
 Timer sprayFinishedTimer(TimerType::ONCE);
 
-StateMachine sm(Triggered::GetInstance());
+StateMachine sm(Idle::GetInstance());
 
-Button manualOverrideButton(manualOverridePin);
+Button manualOverrideButton(manualOverridePin, PinType::ANALOG);
 
 Timer temperatureTimer(TimerType::REPEAT);
 LiquidCrystal lcd = LiquidCrystal(rs, en, d4, d5, d6, d7);
@@ -25,15 +24,16 @@ Button menuButtonRight(menuButtonRightPin);
 
 const int manualOverridePin = A1;
 const int ldr = A0;
-const int menuButtonLeftPin = A2;
-const int menuButtonRightPin = A3;
+const int menuButtonLeftPin = 2;
+const int menuButtonRightPin = 3;
 const int redLED = 8;
 const int greenLED = 7;
 const int yellowLED = 6;
-const int tempPin = 9;
-const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+const int tempPin = 9; // can go on analog too
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 13, d7 = 10;
 int sprayCount = 2400;
 float sprayDelay = 0;
+const int maxSprayCount = 2400;
 
 void setup() {
   Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
@@ -43,11 +43,11 @@ void setup() {
   pinMode(tempPin, INPUT);
   pinMode(ldr, INPUT);
   sensor.begin();
-  lcd.begin(16,2);
+  lcd.begin(16, 2);
   temperatureTimer.Start(temperature, 2500);
-  attachPCINT(digitalPinToPCINT(manualOverridePin), ManualOverrideISP, RISING);
-  attachPCINT(digitalPinToPCINT(menuButtonLeftPin), MenuOpenISP, RISING);
-  attachPCINT(digitalPinToPCINT(menuButtonRightPin), MenuOpenISP, RISING);
+  temperature();
+  attachISR();
+  manualOverrideButton.SetCallback(ManualOverrideSR);
 }
 
 
@@ -55,8 +55,9 @@ void loop() {
   // Should temperature still be updated if we are in the menu?
   temperatureTimer.Update();
   sm.Update();
-  //int read = analogRead(menuButtonLeftPin);
-  //Serial.println(read);
+  if(&sm.GetState() != InMenu::GetInstance()) {
+    manualOverrideButton.Update();
+  }
 }
 
 // Function to update the temperature on the LCD using a timer
@@ -69,11 +70,20 @@ void temperature() {
 }
 
 // Function for the manual override interrupt
-void ManualOverrideISP() {
+void ManualOverrideSR() {
   // Does this also work when in menu?
-  lcd.clear();
-  if (&sm.GetState() != InMenu::GetInstance())
-    sm.SetState(Triggered::GetInstance());
+  if (&sm.GetState() != InMenu::GetInstance() && &sm.GetState() != Triggered::GetInstance())
+    sm.NextState(Triggered::GetInstance());
+}
+
+void attachISR() {
+  attachInterrupt(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISP, FALLING);
+  attachInterrupt(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISP, FALLING);
+}
+
+void detachISR() {
+  detachInterrupt(digitalPinToInterrupt(menuButtonLeftPin));
+  detachInterrupt(digitalPinToInterrupt(menuButtonRightPin));
 }
 
 // Following 3 functions should by in 'Triggered'
