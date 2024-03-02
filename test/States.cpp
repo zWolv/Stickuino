@@ -246,18 +246,14 @@ void InMenu::Enter() {
   detachInterrupt(menuButtonRightPin);
   temperatureTimer.Stop();
   setting = 0;
+  menuButtonLeft.SetCallback(LeftButton);
+  menuButtonRight.SetCallback(RightButton);
 }
 
 State& InMenu::Update() {
   // Menu action
   menuButtonLeft.Update();
   menuButtonRight.Update();
-  if (menuButtonLeft.IsPressed() && !menuButtonRight.IsPressed()) {
-    LeftButton();
-  }
-  if (menuButtonRight.IsPressed() && !menuButtonLeft.IsPressed()) {
-    RightButton();
-  }
 
   switch (setting) {
     case 0:
@@ -301,7 +297,8 @@ State& InMenu::Update() {
       lcd.setCursor(15, 1);
       lcd.print("+");
       // Hold both buttons for 2 seconds to go back to selection.
-      if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
+      if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
+      && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
         setting = 1;
       }
       break;
@@ -321,6 +318,7 @@ void InMenu::Exit() {
 
 void InMenu::LeftButton() {
   // Left button action
+  if(menuButtonRight.IsClicked()) return;
   switch (setting) {
     case 0:
       setting = 1;
@@ -336,6 +334,7 @@ void InMenu::LeftButton() {
 }
 
 void InMenu::RightButton() {
+  if(menuButtonLeft.IsClicked()) return;
   // Right button action
   switch (setting) {
     case 0:

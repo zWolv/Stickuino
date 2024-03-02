@@ -26,6 +26,10 @@ void Button::Update()
                     pressedAt = millis();
                 }
                 pressed = true;
+                if(callback != nullptr) 
+                {
+                    callback();
+                }
             }
             else 
             {
@@ -53,4 +57,9 @@ bool Button::IsClicked() const
 unsigned long Button::PressedFor() const
 {
     return pressedFor;
+}
+
+void Button::SetCallback(void (*callback)())
+{
+    this->callback = callback;
 }
