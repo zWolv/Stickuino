@@ -77,8 +77,13 @@ class InMenu : public State {
 public:
   static InMenu* GetInstance();
   State& Update() override;
+  void Enter() override;
+  void Exit() override;
 private:
+  void LeftButton();
+  void RightButton();
   static InMenu* instance;
+  int setting;
   InMenu();
 };
 

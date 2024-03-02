@@ -9,14 +9,19 @@ class Button
 public:
     Button(int pin);
     void Update();
-    void SetCallback(void (*function)());
+    bool IsClicked() const;
+    unsigned long PressedFor() const;
 private:
     int previousState = HIGH;
     int debouncedState = HIGH;
     unsigned long previousDebounceTime = 0;
     const unsigned long debounceDelay = 50;
     int pin;
-    void (*function)();
+    bool pressed = false;
+    unsigned long pressedFor = 0;
+    unsigned long pressedAt = 0;
+    bool clicked = false;
+    int clickHoldTime = 250; // Time to keep the button marked as clicked to allow for using 2 buttons at the same time for a single action
 };
 
 

@@ -3,13 +3,13 @@
 Button::Button(int pin)
 {
     this->pin = pin;
-    function = nullptr;
     pinMode(pin, INPUT);
 }
 
 void Button::Update() 
 {
     int reading = digitalRead(pin);
+    bool wasPressed = pressed;
     if(reading != previousState) 
     {
         previousDebounceTime = millis();
@@ -21,14 +21,36 @@ void Button::Update()
             debouncedState = reading;
             if(debouncedState == LOW) 
             {
-                if(function != nullptr)
-                    (*function)();
+                if(!pressed) 
+                {
+                    pressedAt = millis();
+                }
+                pressed = true;
+            }
+            else 
+            {
+                pressed = false;
+                pressedFor = millis() - pressedAt;
+                if(wasPressed)  // If the button was pressed in the last update
+                {
+                    clicked = true;
+                    clickedAt = millis();  // Record the time when the button was clicked
+                }
             }
         }
     }
+    else if(millis() - clickedAt > clickHoldTime)  // If the hold time has passed
+    {
+        clicked = false;
+    }
 }
 
-void Button::SetCallback(void (*function)()) 
+bool Button::IsClicked() const
 {
-    this->function = function;
+    return clicked;
+}
+
+unsigned long Button::PressedFor() const
+{
+    return pressedFor;
 }

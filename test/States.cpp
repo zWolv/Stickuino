@@ -3,23 +3,22 @@
 // Idle state
 // green led on
 Idle::Idle() {
-    name = "Idle";
+  name = "Idle";
   stateLED[0] = redLED;
 }
 
 
 State& Idle::Update() {
   // Detect any use case and go to appropriate state
-  /*
-    if (usage detected) {
-        sm.SetState((UnknownUse)UnknownUse());
-    }
-    */
+  int light = analogRead(ldr);
+  if (light > 100) {  // Threshold for when the light is on
+    return *UnknownUse::GetInstance();
+  }
   return *this;
 }
 
 void Idle::Exit() {
-    State::Exit();
+  State::Exit();
   delete Idle::instance;
   Idle::instance = nullptr;
 }
@@ -36,7 +35,7 @@ Idle* Idle::GetInstance() {
 // In use - type of use unknown
 // green + yellow led on
 UnknownUse::UnknownUse() {
-    name = "UnknownUse";
+  name = "UnknownUse";
   stateLED[0] = greenLED;
   stateLED[1] = yellowLED;
 }
@@ -67,7 +66,7 @@ State& UnknownUse::Update() {
 }
 
 void UnknownUse::Exit() {
-    State::Exit();
+  State::Exit();
   delete UnknownUse::instance;
   UnknownUse::instance = nullptr;
 }
@@ -75,7 +74,7 @@ void UnknownUse::Exit() {
 // In use - number 1 use
 // green + red led on
 Use1::Use1() {
-    name = "Use1";
+  name = "Use1";
   stateLED[0] = greenLED;
   stateLED[1] = redLED;
 }
@@ -100,7 +99,7 @@ State& Use1::Update() {
 }
 
 void Use1::Exit() {
-    State::Exit();
+  State::Exit();
   delete Use1::instance;
   Use1::instance = nullptr;
 }
@@ -108,7 +107,7 @@ void Use1::Exit() {
 // In use - number 2 use
 // red led on
 Use2::Use2() {
-    name = "Use2";
+  name = "Use2";
   stateLED[0] = redLED;
 }
 
@@ -132,7 +131,7 @@ State& Use2::Update() {
 }
 
 void Use2::Exit() {
-    State::Exit();
+  State::Exit();
   delete Use2::instance;
   Use2::instance = nullptr;
 }
@@ -140,7 +139,7 @@ void Use2::Exit() {
 // In use - cleaning
 // yellow led on
 Cleaning::Cleaning() {
-    name = "Cleaning";
+  name = "Cleaning";
   stateLED[0] = yellowLED;
 }
 
@@ -164,7 +163,7 @@ State& Cleaning::Update() {
 }
 
 void Cleaning::Exit() {
-    State::Exit();
+  State::Exit();
   delete Cleaning::instance;
   Cleaning::instance = nullptr;
 }
@@ -172,7 +171,7 @@ void Cleaning::Exit() {
 // triggered - spray-shot imminent
 // all leds on
 Triggered::Triggered() {
-    name = "Triggered";
+  name = "Triggered";
   stateLED[0] = greenLED;
   stateLED[1] = redLED;
   stateLED[2] = yellowLED;
@@ -226,7 +225,7 @@ void Triggered::Spray() {
 // operator menu active
 // red + yellow led on
 InMenu::InMenu() {
-    name = "InMenu";
+  name = "InMenu";
   stateLED[0] = redLED;
   stateLED[1] = yellowLED;
 }
@@ -240,10 +239,102 @@ InMenu* InMenu::GetInstance() {
   return InMenu::instance;
 }
 
+void InMenu::Enter() {
+  State::Enter();
+  detachInterrupt(manualOverridePin);
+  detachInterrupt(menuButtonLeftPin);
+  detachInterrupt(menuButtonRightPin);
+  temperatureTimer.Stop();
+  setting = 0;
+}
+
 State& InMenu::Update() {
   // Menu action
-  /*
-    define a bunch of menu actions.
-    */
+  menuButtonLeft.Update();
+  menuButtonRight.Update();
+  if (menuButtonLeft.IsPressed() && !menuButtonRight.IsPressed()) {
+    LeftButton();
+  }
+  if (menuButtonRight.IsPressed() && !menuButtonLeft.IsPressed()) {
+    RightButton();
+  }
+
+  switch (setting) {
+    case 0:
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Sprays left:" + (String)sprayCount);
+      lcd.setCursor(0, 1);
+      lcd.print("Next");
+      lcd.setCursor(10, 1);
+      lcd.print("Reset");
+      break;
+    case 1:
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Spray delay:" + (String)sprayDelay + "s");
+      lcd.setCursor(0, 1);
+      lcd.print("Next");
+      lcd.setCursor(9, 1);
+      lcd.print("Select");
+      break;
+    case -1:
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Spray delay:" + (String)sprayDelay + "s");
+      lcd.setCursor(0, 1);
+      lcd.print("-");
+      lcd.setCursor(5, 1);
+      lcd.print("Back");
+      lcd.setCursor(15, 1);
+      lcd.print("+");
+      // Hold both buttons for 2 seconds to go back to selection.
+      if(menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
+        setting = 1;
+      }
+      break;
+    default:
+      break;
+  }
   return *this;
+}
+
+void InMenu::Exit() {
+  State::Exit();
+  attachInterrupt(digitalPinToInterrupt(manualOverridePin), ManualOverrideISP, RISING);
+  attachInterrupt(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISP, RISING);
+  attachInterrupt(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISP, RISING);
+  temperatureTimer.Start(temperature, 2500);
+}
+
+void InMenu::LeftButton() {
+  // Left button action
+  switch (setting) {
+    case 0:
+      setting = 1;
+      break;
+    case 1:
+      setting = 0;
+      break;
+    case -1:
+      sprayDelay = max(0, sprayDelay - 0.5f);
+    default:
+      break;
+  }
+}
+
+void InMenu::RightButton() {
+  // Right button action
+  switch (setting) {
+    case 0:
+      sprayCount = 2400;
+      break;
+    case 1:
+      setting = -1;
+      break;
+    case -1:
+      sprayDelay = min(INT8_MAX, sprayDelay + 0.5f);
+    default:
+      break;
+  }
 }

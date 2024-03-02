@@ -11,8 +11,6 @@
 OneWire oneWire(tempPin);
 DallasTemperature sensor(&oneWire);
 
-Timer temperatureTimer(TimerType::REPEAT);
-
 Timer sprayFinishedTimer(TimerType::ONCE);
 
 StateMachine sm(Triggered::GetInstance());
@@ -24,7 +22,8 @@ void setup() {
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(yellowLED, OUTPUT);
-  //t.Start(Turnon, 5000);
+  pinMode(tempPin, INPUT);
+  pinMode(ldr, INPUT);
   sensor.begin();
   lcd.begin(16,2);
   temperatureTimer.Start(temperature, 2500);
@@ -35,10 +34,6 @@ void setup() {
 
 
 void loop() {
-  // Compare the current state to see if we are in the menu
-  manualOverrideButton.Update();
-  menuButtonLeft.Update();
-  menuButtonRight.Update();
   // Should temperature still be updated if we are in the menu?
   temperatureTimer.Update();
   sm.Update();
