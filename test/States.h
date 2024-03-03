@@ -87,6 +87,7 @@ private:
   int setting;
   InMenu();
   int previousSetting;
+  float temp;
   State* state;
 };
 

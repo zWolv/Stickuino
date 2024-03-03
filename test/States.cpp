@@ -299,7 +299,9 @@ State& InMenu::Update() {
       if (menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
       && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
         setting = 1;
-        EEPROM.put(sprayDelayIndex, sprayDelay);
+        if (temp != sprayDelay) {
+          EEPROM.put(sprayDelayIndex, sprayDelay);
+        }
       }
       break;
     default:
@@ -344,6 +346,7 @@ void InMenu::RightButton() {
       break;
     case 1:
       InMenu::GetInstance()->setting = -1;
+      temp = sprayDelay;
       break;
     case -1:
       sprayDelay = min(INT8_MAX, sprayDelay + 0.5f);
