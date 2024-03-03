@@ -6,22 +6,7 @@
 #include <Timer.h>
 #include "Globals.h"
 #include <Button.h>
-
-/*
-extern Timer temperatureTimer;
-extern LiquidCrystal lcd;
-extern Button menuButtonLeft;
-extern Button menuButtonRight;
-extern const int manualOverridePin;
-extern const int ldr;
-extern const int menuButtonLeftPin;
-extern const int menuButtonRightPin;
-extern const int redLED;
-extern const int greenLED;
-extern const int yellowLED;
-extern float sprayDelay;
-extern int sprayCount;
-*/
+#include <EEPROM.h>
 
 class Idle : public State {
 public:
