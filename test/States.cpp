@@ -346,7 +346,7 @@ void InMenu::RightButton() {
       break;
     case 1:
       InMenu::GetInstance()->setting = -1;
-      temp = sprayDelay;
+      InMenu::GetInstance()->temp = sprayDelay;
       break;
     case -1:
       sprayDelay = min(INT8_MAX, sprayDelay + 0.5f);
