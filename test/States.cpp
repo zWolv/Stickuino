@@ -81,7 +81,7 @@ State& UnknownUse::Update() {
   if(millis() - doorTime > 10000) { // Door has been open for 10 seconds
     return *Cleaning::GetInstance();
   }
-
+  // NEED TO ADD MOTIONSENSOR?
   // Measure distances in the toilet from distance sensor to button.
   if(distance > 20 && distance < 30 && !doorOpen) {
     return *Use1::GetInstance();
@@ -92,6 +92,7 @@ State& UnknownUse::Update() {
   return *this;
 }
 
+// Function to check the distance from the distance sensor to the button
 static void UnknownUse::EchoCheck() {
   if(sonar.check_timer()) {
     UnknownUse::GetInstance()->distance = sonar.ping_result / US_ROUNDTRIP_CM;
