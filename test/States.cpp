@@ -64,12 +64,18 @@ State& UnknownUse::Update() {
   bool doorOpen = false;
   if(millis() >= pingTimer) {
     pingTimer += pingSpeed;
-    sonar.ping_timer(UnknownUse::GetInstance()->EchoCheck);
+    sonar.ping_timer(EchoCheck);
   }
   previousDoorState = doorState;
   doorState = analogRead(magnetPin) > 512 ? HIGH : LOW;
   if(doorState == HIGH && previousDoorState == LOW) { // Door is open
     doorTime = millis();
+  }
+
+  // Light turns off -> no use
+  int light = analogRead(ldr);
+  if (light < 100) {
+    return *Idle::GetInstance();
   }
 
   if(millis() - doorTime > 10000) { // Door has been open for 10 seconds
@@ -86,7 +92,7 @@ State& UnknownUse::Update() {
   return *this;
 }
 
-void UnknownUse::EchoCheck() {
+static void UnknownUse::EchoCheck() {
   if(sonar.check_timer()) {
     UnknownUse::GetInstance()->distance = sonar.ping_result / US_ROUNDTRIP_CM;
   }
@@ -117,11 +123,10 @@ Use1* Use1::GetInstance() {
 
 State& Use1::Update() {
   // Use case 1 ended
-  /*
-    if (use case ended) {
-        sm.SetState((Triggered)Triggered(once));
-    }
-    */
+  int read = analogRead(ldr);
+  if (read < 100) { // tweak this value
+    return FinishedUse(1); // 1 spray
+  }
   return *this;
 }
 
@@ -149,11 +154,10 @@ Use2* Use2::GetInstance() {
 
 State& Use2::Update() {
   // Use case 2 ended
-  /*
-    if (use case ended) {
-        sm.SetState((Triggered)Triggered(twice));
-    }
-    */
+  int read = analogRead(ldr);
+  if (read < 100) { // tweak this value
+    return FinishedUse(2); // 2 spray
+  }
   return *this;
 }
 
@@ -181,11 +185,10 @@ Cleaning* Cleaning::GetInstance() {
 
 State& Cleaning::Update() {
   // Cleaning ended
-  /*
-    if (cleaning ended) {
-        sm.SetState((Idle)Idle());
-    }
-    */
+  int read = analogRead(ldr);
+  if (read < 100) {
+    return *Idle::GetInstance();
+  }
   return *this;
 }
 
@@ -216,19 +219,11 @@ Triggered* Triggered::GetInstance() {
 
 void Triggered::Enter() {
   State::Enter();
-
-  //timer->Start(StaticTimerFunction, sprayDelay);  // use recursive function to call 'count' times
+  timer.Start(TimerFunction, sprayDelay * 1000);  // use recursive function to call 'count' times - delay is in ms
 }
 
-static void Triggered::StaticTimerFunction() {
-  //Triggered::instance->TimerFunction();
-}
-
-void Triggered::TimerFunction() {
-  /*Spray();
-  if (count > 0) {
-    timer->Start(StaticTimerFunction, sprayDelay);
-  }*/
+static void Triggered::TimerFunction() {
+  Triggered::GetInstance()->Spray();
 }
 
 void Triggered::Exit() {
@@ -239,16 +234,27 @@ void Triggered::Exit() {
 }
 
 State& Triggered::Update() {
-  //if (count == 0)
-  //  return new Idle();
+  timer.Update();
+  if(count <= 0) {
+    return *Idle::GetInstance();
+  }
   return *this;
 }
 
-void Triggered::Spray() {
+static void Triggered::Spray() {
   // Do the spray
+  /*
+      digitalWrite(sprayPin, HIGH);  
+      Triggered::GetInstance()->timer.Start(SprayFinished, sprayWaitTime); // Call SprayFinished after 25 seconds
+  */  
+}
 
-  // Reduce spray count to do
-  count--;
+static void Triggered::SprayFinished() {
+  // digitalWrite(sprayPin, LOW);
+  Triggered::GetInstance()->count--;
+  if (Triggered::GetInstance()->count > 0) {
+    Spray();
+  }
 }
 
 // operator menu active
@@ -271,7 +277,7 @@ InMenu* InMenu::GetInstance() {
 
 void InMenu::Enter() {
   State::Enter();
-  detachISR();
+  DetachISR();
   temperatureTimer.Stop();
   setting = 0;
   previousSetting = -1;
@@ -339,9 +345,9 @@ State& InMenu::Update() {
 
 void InMenu::Exit() {
   State::Exit();
-  attachISR();
-  temperatureTimer.Start(temperature, 2500);
-  temperature();
+  AttachISR();
+  temperatureTimer.Start(Temperature, 2500);
+  Temperature();
   state = this;
   menuButtonLeft.SetCallback(nullptr);
   menuButtonRight.SetCallback(nullptr);

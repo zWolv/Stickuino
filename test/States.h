@@ -71,17 +71,19 @@ private:
 class Triggered : public State {
 public:
   static Triggered* GetInstance();
+  int count;
   void Enter() override;
   State& Update() override;
   void Exit() override;
-  void TimerFunction();
-  static void StaticTimerFunction();
+  static void TimerFunction();
 private:
   static Triggered* instance;
   Triggered();
-  void Spray();
+  static void Spray();
+  static void SprayFinished();
   Timer timer;
-  int count;
+  bool spraying;
+
 };
 
 class InMenu : public State {

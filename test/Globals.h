@@ -6,6 +6,7 @@
 #include "States.h"
 #include <Timer.h>
 #include <NewPing.h>
+#include <StateMachine.h>
 
 
 // Global variables
@@ -32,12 +33,15 @@ extern const int distEcho;
 extern const int motionPin;
 extern const int magnetPin;
 extern NewPing sonar;
+extern const int sprayWaitTime;
+extern const int sprayPin;
 
 // Forward declarations
 void MenuOpenISP();
-void temperature();
-void attachISR();
-void detachISR();
-void echoCheck();
+void Temperature();
+void AttachISR();
+void DetachISR();
+void EchoCheck();
+State& FinishedUse(int sprayCount);
 
 #endif

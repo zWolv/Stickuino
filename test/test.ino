@@ -40,6 +40,7 @@ const int distTrig = A4;
 const int distEcho = A3;
 const int motionPin = A3;
 const int magnetPin = A3;
+const int sprayWaitTime = 25000;
 
 int sprayCountIndex = 0;
 int sprayDelayIndex = 4;
@@ -69,9 +70,9 @@ void setup() {
   pinMode(magnetPin, INPUT_PULLUP);
   sensor.begin();
   lcd.begin(16, 2);
-  temperatureTimer.Start(temperature, 2500);
-  temperature();
-  attachISR();
+  temperatureTimer.Start(Temperature, 2500);
+  Temperature();
+  AttachISR();
   manualOverrideButton.SetCallback(ManualOverrideSR);
 }
 
@@ -100,7 +101,7 @@ void loop() {
 }
 
 // Function to update the temperature on the LCD using a timer
-void temperature() {
+void Temperature() {
   lcd.clear();
   sensor.requestTemperatures();
   float temp = sensor.getTempCByIndex(0);
@@ -108,19 +109,29 @@ void temperature() {
   lcd.print((String)temp + " C");
 }
 
+State& FinishedUse(int sprayCount) {
+  int read = analogRead(ldr);
+  if (read < 512) {
+    Triggered& state = *Triggered::GetInstance();
+    state.count = sprayCount;
+    return state;
+  }
+}
+
 // Function for the manual override interrupt
 void ManualOverrideSR() {
   // Does this also work when in menu?
   if (&sm.GetState() != InMenu::GetInstance() && &sm.GetState() != Triggered::GetInstance())
     sm.NextState(Triggered::GetInstance());
+    Triggered::GetInstance()->count = 1;
 }
 
-void attachISR() {
+void AttachISR() {
   attachInterrupt(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISP, FALLING);
   attachInterrupt(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISP, FALLING);
 }
 
-void detachISR() {
+void DetachISR() {
   detachInterrupt(digitalPinToInterrupt(menuButtonLeftPin));
   detachInterrupt(digitalPinToInterrupt(menuButtonRightPin));
 }
