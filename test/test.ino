@@ -7,6 +7,7 @@
 #include <OneWire.h>
 #include <Button.h>
 #include <EEPROM.h>
+#include <NewPing.h>
 
 OneWire oneWire(tempPin);
 DallasTemperature sensor(&oneWire);
@@ -35,9 +36,15 @@ const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 13, d7 = 10;
 float sprayCount = 2400;
 float sprayDelay = 0;
 const int maxSprayCount = 2400;
+const int distTrig = A4;
+const int distEcho = A3;
+const int motionPin = A3;
+const int magnetPin = A3;
 
 int sprayCountIndex = 0;
 int sprayDelayIndex = 4;
+
+NewPing sonar(distTrig, distEcho, 50);
 
 void setup() {
   float read;
@@ -59,6 +66,7 @@ void setup() {
   pinMode(yellowLED, OUTPUT);
   pinMode(tempPin, INPUT);
   pinMode(ldr, INPUT);
+  pinMode(magnetPin, INPUT_PULLUP);
   sensor.begin();
   lcd.begin(16, 2);
   temperatureTimer.Start(temperature, 2500);
@@ -67,6 +75,8 @@ void setup() {
   manualOverrideButton.SetCallback(ManualOverrideSR);
 }
 
+int pinState = LOW;
+int pinStateP = LOW;
 
 void loop() {
   // Should temperature still be updated if we are in the menu?
@@ -75,6 +85,18 @@ void loop() {
   if (&sm.GetState() != InMenu::GetInstance()) {
     manualOverrideButton.Update();
   }
+  /*
+  pinStateP = pinState;
+  pinState = analogRead(motionPin) > 512 ? HIGH : LOW;
+  if (pinStateP == LOW && pinState == HIGH) {   // pin state change: LOW -> HIGH
+    Serial.println("Motion detected!");
+    // TODO: turn on alarm, light or activate a device ... here
+  }
+  else
+  if (pinStateP == HIGH && pinState == LOW) {   // pin state change: HIGH -> LOW
+    Serial.println("Motion stopped!");
+    // TODO: turn off alarm, light or deactivate a device ... here
+  }*/
 }
 
 // Function to update the temperature on the LCD using a timer

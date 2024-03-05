@@ -7,6 +7,7 @@
 #include "Globals.h"
 #include <Button.h>
 #include <EEPROM.h>
+#include <NewPing.h>
 
 class Idle : public State {
 public:
@@ -22,10 +23,19 @@ class UnknownUse : public State {
 public:
   static UnknownUse* GetInstance();
   void Exit() override;
+  void Enter() override;
   State& Update() override;
 private:
   static UnknownUse* instance;
   UnknownUse();
+  static void EchoCheck();
+  unsigned int pingSpeed;
+  unsigned long pingTimer;
+  int distance;
+  int doorTime;
+  int doorState;
+  int previousDoorState;
+  bool cleaning;
 };
 
 class Use1 : public State {

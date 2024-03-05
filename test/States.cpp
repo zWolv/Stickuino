@@ -40,6 +40,16 @@ UnknownUse::UnknownUse() {
   stateLED[1] = yellowLED;
 }
 
+void UnknownUse::Enter() {
+  State::Enter();
+  pingSpeed = 50;
+  pingTimer = millis();
+  cleaning = false;
+  previousDoorState = LOW;
+  doorState = LOW;
+  doorTime = 0;
+}
+
 UnknownUse* UnknownUse::instance = nullptr;
 
 UnknownUse* UnknownUse::GetInstance() {
@@ -50,19 +60,36 @@ UnknownUse* UnknownUse::GetInstance() {
 }
 
 State& UnknownUse::Update() {
-  // Use case detected
-  /*
-    if (use case 1 detected) {
-        sm.SetState((Use1)Use1());
-    }
-    else if (use case 2 detected) {
-        sm.SetState((Use2)Use2());
-    }
-    else if (cleaning detected) {
-        sm.SetState((Cleaning)Cleaning());
-    }
-    */
+  // Need to do some stuff to make usable for this purpose
+  bool doorOpen = false;
+  if(millis() >= pingTimer) {
+    pingTimer += pingSpeed;
+    sonar.ping_timer(UnknownUse::GetInstance()->EchoCheck);
+  }
+  previousDoorState = doorState;
+  doorState = analogRead(magnetPin) > 512 ? HIGH : LOW;
+  if(doorState == HIGH && previousDoorState == LOW) { // Door is open
+    doorTime = millis();
+  }
+
+  if(millis() - doorTime > 10000) { // Door has been open for 10 seconds
+    return *Cleaning::GetInstance();
+  }
+
+  // Measure distances in the toilet from distance sensor to button.
+  if(distance > 20 && distance < 30 && !doorOpen) {
+    return *Use1::GetInstance();
+  } else if(distance > 30 && distance < 40 && !doorOpen) {
+    return *Use2::GetInstance();
+  }
+
   return *this;
+}
+
+void UnknownUse::EchoCheck() {
+  if(sonar.check_timer()) {
+    UnknownUse::GetInstance()->distance = sonar.ping_result / US_ROUNDTRIP_CM;
+  }
 }
 
 void UnknownUse::Exit() {
