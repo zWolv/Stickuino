@@ -1,15 +1,16 @@
 #include "States.h"
 
 // Idle state
-// green led on
+// RED BLINK AND GREEN BLINK
 Idle::Idle() {
   name = "Idle";
-  stateLED[0] = redLED;
 }
 
 
 State& Idle::Update() {
   // Detect any use case and go to appropriate state
+  Blink(redLED, redTime, redState);
+  Blink(greenLED, greenTime, greenState);
   int light = analogRead(ldr);
   if (light > 100) {  // Threshold for when the light is on
     return *UnknownUse::GetInstance();
@@ -33,11 +34,9 @@ Idle* Idle::GetInstance() {
 }
 
 // In use - type of use unknown
-// green + yellow led on
+// GREEN BLINK
 UnknownUse::UnknownUse() {
   name = "UnknownUse";
-  stateLED[0] = greenLED;
-  stateLED[1] = yellowLED;
 }
 
 void UnknownUse::Enter() {
@@ -60,6 +59,7 @@ UnknownUse* UnknownUse::GetInstance() {
 }
 
 State& UnknownUse::Update() {
+  Blink(greenLED, greenTime, greenState);
   // Need to do some stuff to make usable for this purpose
   bool doorOpen = false;
   if(millis() >= pingTimer) {
@@ -106,11 +106,10 @@ void UnknownUse::Exit() {
 }
 
 // In use - number 1 use
-// green + red led on
+// GREEN LED
 Use1::Use1() {
   name = "Use1";
   stateLED[0] = greenLED;
-  stateLED[1] = redLED;
 }
 
 Use1* Use1::instance = nullptr;
@@ -138,7 +137,7 @@ void Use1::Exit() {
 }
 
 // In use - number 2 use
-// red led on
+// RED
 Use2::Use2() {
   name = "Use2";
   stateLED[0] = redLED;
@@ -169,10 +168,10 @@ void Use2::Exit() {
 }
 
 // In use - cleaning
-// yellow led on
+// GREEN BLINK AND RED
 Cleaning::Cleaning() {
   name = "Cleaning";
-  stateLED[0] = yellowLED;
+  stateLED[0] = redLED;
 }
 
 Cleaning* Cleaning::instance = nullptr;
@@ -185,6 +184,7 @@ Cleaning* Cleaning::GetInstance() {
 }
 
 State& Cleaning::Update() {
+  Blink(greenLED, greenTime, greenState);
   // Cleaning ended
   int read = analogRead(ldr);
   if (read < 100) {
@@ -200,13 +200,10 @@ void Cleaning::Exit() {
 }
 
 // triggered - spray-shot imminent
-// all leds on
+// RED BLINK
 Triggered::Triggered()
   : timer(TimerType::ONCE) {
   name = "Triggered";
-  stateLED[0] = greenLED;
-  stateLED[1] = redLED;
-  stateLED[2] = yellowLED;
 }
 
 Triggered* Triggered::instance = nullptr;
@@ -235,6 +232,7 @@ void Triggered::Exit() {
 }
 
 State& Triggered::Update() {
+  Blink(redLED, redTime, redState);
   timer.Update();
   if(count <= 0) {
     return *Idle::GetInstance();
@@ -244,14 +242,12 @@ State& Triggered::Update() {
 
 static void Triggered::Spray() {
   // Do the spray
-  /*
-      digitalWrite(sprayPin, HIGH);  
-      Triggered::GetInstance()->timer.Start(SprayFinished, sprayWaitTime); // Call SprayFinished after 25 seconds
-  */  
+  digitalWrite(sprayPin, HIGH);  
+  Triggered::GetInstance()->timer.Start(SprayFinished, sprayWaitTime); // Call SprayFinished after 25 seconds
 }
 
 static void Triggered::SprayFinished() {
-  // digitalWrite(sprayPin, LOW);
+  digitalWrite(sprayPin, LOW);
   Triggered::GetInstance()->count--;
   if (Triggered::GetInstance()->count > 0) {
     Spray();
@@ -259,11 +255,10 @@ static void Triggered::SprayFinished() {
 }
 
 // operator menu active
-// red + yellow led on
+// GREEN AND RED BLINK
 InMenu::InMenu() {
   name = "InMenu";
-  stateLED[0] = redLED;
-  stateLED[1] = yellowLED;
+  stateLED[0] = greenLED;
   state = nullptr;
 }
 
@@ -289,6 +284,7 @@ void InMenu::Enter() {
 
 State& InMenu::Update() {
   // Menu action
+  Blink(redLED, redTime, redState);
   menuButtonLeft.Update();
   menuButtonRight.Update();
   switch (setting) {

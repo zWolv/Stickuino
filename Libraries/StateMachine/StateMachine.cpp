@@ -2,7 +2,7 @@
 
 State::State() {
     name = "Base State";
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 2; i++) {
         stateLED[i] = -1;
     }
 }

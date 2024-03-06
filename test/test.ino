@@ -30,7 +30,6 @@ const int menuButtonLeftPin = 2;
 const int menuButtonRightPin = 3;
 const int redLED = 8;
 const int greenLED = 7;
-const int yellowLED = 6;
 const int tempPin = 9;  // can go on analog too
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 13, d7 = 10;
 float sprayCount = 2400;
@@ -40,13 +39,18 @@ const int distTrig = A4;
 const int distEcho = A5;
 const int motionPin = A2;
 const int magnetPin = A3;
-const int sprayWaitTime = 25000;
-const int sprayPin = A6;
-
+const int sprayWaitTime = 20000;
+const int sprayPin = 6;               
+unsigned long redTime = 0;
+unsigned long greenTime = 0;
+int redState = LOW;
+int greenState = LOW;
 int sprayCountIndex = 0;
 int sprayDelayIndex = 4;
 
 NewPing sonar(distTrig, distEcho, 50);
+
+Timer test(TimerType::REPEAT);
 
 void setup() {
   float read;
@@ -65,10 +69,10 @@ void setup() {
   Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
-  pinMode(yellowLED, OUTPUT);
   pinMode(tempPin, INPUT);
   pinMode(ldr, INPUT);
   pinMode(magnetPin, INPUT_PULLUP);
+  pinMode(sprayPin, OUTPUT);
   sensor.begin();
   lcd.begin(16, 2);
   temperatureTimer.Start(Temperature, 2500);
@@ -77,28 +81,19 @@ void setup() {
   manualOverrideButton.SetCallback(ManualOverrideSR);
 }
 
-int pinState = LOW;
-int pinStateP = LOW;
-
 void loop() {
-  // Should temperature still be updated if we are in the menu?
   temperatureTimer.Update();
   sm.Update();
   if (&sm.GetState() != InMenu::GetInstance()) {
     manualOverrideButton.Update();
   }
-  /*
-  pinStateP = pinState;
-  pinState = analogRead(motionPin) > 512 ? HIGH : LOW;
-  if (pinStateP == LOW && pinState == HIGH) {   // pin state change: LOW -> HIGH
-    Serial.println("Motion detected!");
-    // TODO: turn on alarm, light or activate a device ... here
+}
+
+void Blink(int const& pin, unsigned long& time, int& state) {
+  if (millis() - time > 500) {
+    digitalWrite(pin, state == HIGH ? LOW : HIGH);
+    time = millis();
   }
-  else
-  if (pinStateP == HIGH && pinState == LOW) {   // pin state change: HIGH -> LOW
-    Serial.println("Motion stopped!");
-    // TODO: turn off alarm, light or deactivate a device ... here
-  }*/
 }
 
 // Function to update the temperature on the LCD using a timer

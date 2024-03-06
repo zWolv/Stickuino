@@ -15,7 +15,7 @@ public:
     virtual State& Update();
     String name;
 protected:
-    int stateLED[3];
+    int stateLED[2];
 };
 
 class StateMachine 
