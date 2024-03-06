@@ -37,10 +37,11 @@ float sprayCount = 2400;
 float sprayDelay = 0;
 const int maxSprayCount = 2400;
 const int distTrig = A4;
-const int distEcho = A3;
-const int motionPin = A3;
+const int distEcho = A5;
+const int motionPin = A2;
 const int magnetPin = A3;
 const int sprayWaitTime = 25000;
+const int sprayPin = A6;
 
 int sprayCountIndex = 0;
 int sprayDelayIndex = 4;
