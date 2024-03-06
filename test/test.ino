@@ -75,8 +75,8 @@ void setup() {
   pinMode(sprayPin, OUTPUT);
   sensor.begin();
   lcd.begin(16, 2);
-  temperatureTimer.Start(Temperature, 2500);
-  Temperature();
+  temperatureTimer.Start(LCD, 2500);
+  LCD();
   AttachISR();
   manualOverrideButton.SetCallback(ManualOverrideSR);
 }
@@ -97,12 +97,16 @@ void Blink(int const& pin, unsigned long& time, int& state) {
 }
 
 // Function to update the temperature on the LCD using a timer
-void Temperature() {
+void LCD() {
   lcd.clear();
   sensor.requestTemperatures();
-  float temp = sensor.getTempCByIndex(0);
+  int temp = sensor.getTempCByIndex(0);
   lcd.setCursor(0, 0);
   lcd.print((String)temp + " C");
+  lcd.setCursor(0, 1);
+  lcd.print("Sprays: " + (String)sprayCount);
+  lcd.setCursor(6, 1);
+  lcd.print(sm.GetState().name);
 }
 
 State& FinishedUse(int sprayCount) {

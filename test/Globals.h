@@ -41,7 +41,7 @@ extern const int sprayPin;
 
 // Forward declarations
 void MenuOpenISP();
-void Temperature();
+void LCD();
 void AttachISR();
 void DetachISR();
 void EchoCheck();

@@ -6,13 +6,19 @@ Idle::Idle() {
   name = "Idle";
 }
 
+void Idle::Enter() {
+  State::Enter();
+  motionState = LOW;
+  previousMotionState = LOW;
+}
 
 State& Idle::Update() {
   // Detect any use case and go to appropriate state
   Blink(redLED, redTime, redState);
   Blink(greenLED, greenTime, greenState);
-  int light = analogRead(ldr);
-  if (light > 100) {  // Threshold for when the light is on
+  previousMotionState = motionState;
+  motionState = digitalRead(motionPin);
+  if (motionState == HIGH && previousMotionState == LOW) {
     return *UnknownUse::GetInstance();
   }
   return *this;
@@ -36,7 +42,7 @@ Idle* Idle::GetInstance() {
 // In use - type of use unknown
 // GREEN BLINK
 UnknownUse::UnknownUse() {
-  name = "UnknownUse";
+  name = "Unknown";
 }
 
 void UnknownUse::Enter() {
@@ -47,6 +53,7 @@ void UnknownUse::Enter() {
   previousDoorState = LOW;
   doorState = LOW;
   doorTime = 0;
+  door = false;
 }
 
 UnknownUse* UnknownUse::instance = nullptr;
@@ -70,6 +77,10 @@ State& UnknownUse::Update() {
   doorState = analogRead(magnetPin) > 512 ? HIGH : LOW;
   if(doorState == HIGH && previousDoorState == LOW) { // Door is open
     doorTime = millis();
+    door = true;
+  }
+  else if(doorState == LOW && previousDoorState == HIGH) { // Door is closed
+    door = false;
   }
 
   // Light turns off -> no use
@@ -78,10 +89,9 @@ State& UnknownUse::Update() {
     return *Idle::GetInstance();
   }
 
-  if(millis() - doorTime > 10000) { // Door has been open for 10 seconds
+  if(millis() - doorTime > 10000 && door) { // Door has been open for 10 seconds
     return *Cleaning::GetInstance();
   }
-  // NEED TO ADD MOTIONSENSOR?
   // Measure distances in the toilet from distance sensor to button.
   if(distance > 20 && distance < 30 && !doorOpen) {
     return *Use1::GetInstance();
@@ -108,7 +118,7 @@ void UnknownUse::Exit() {
 // In use - number 1 use
 // GREEN LED
 Use1::Use1() {
-  name = "Use1";
+  name = "Use 1";
   stateLED[0] = greenLED;
 }
 
@@ -139,7 +149,7 @@ void Use1::Exit() {
 // In use - number 2 use
 // RED
 Use2::Use2() {
-  name = "Use2";
+  name = "Use 2";
   stateLED[0] = redLED;
 }
 
@@ -343,8 +353,8 @@ State& InMenu::Update() {
 void InMenu::Exit() {
   State::Exit();
   AttachISR();
-  temperatureTimer.Start(Temperature, 2500);
-  Temperature();
+  temperatureTimer.Start(LCD, 2500);
+  LCD();
   state = this;
   menuButtonLeft.SetCallback(nullptr);
   menuButtonRight.SetCallback(nullptr);

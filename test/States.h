@@ -14,9 +14,12 @@ public:
   static Idle* GetInstance();
   State& Update() override;
   void Exit() override;
+  void Enter() override;
 private:
   static Idle* instance;
   Idle();
+  int motionState;
+  int previousMotionState;
 };
 
 class UnknownUse : public State {
@@ -36,6 +39,7 @@ private:
   int doorState;
   int previousDoorState;
   bool cleaning;
+  bool door;
 };
 
 class Use1 : public State {
