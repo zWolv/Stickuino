@@ -16,6 +16,8 @@ StateMachine sm(Idle::GetInstance());
 
 Button manualOverrideButton(manualOverridePin, PinType::ANALOG);
 
+const int distance = 58;
+
 // Global variables
 Timer temperatureTimer(TimerType::REPEAT);
 LiquidCrystal lcd = LiquidCrystal(rs, en, d4, d5, d6, d7);
@@ -48,7 +50,7 @@ NewPing sonar(distTrig, distEcho, distance);
 const int tempTime = 1500;
 
 
-const int distance = 58;
+
 
 void setup() {
   float read;
