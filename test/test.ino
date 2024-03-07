@@ -12,18 +12,15 @@
 OneWire oneWire(tempPin);
 DallasTemperature sensor(&oneWire);
 
-Timer sprayFinishedTimer(TimerType::ONCE);
-
 StateMachine sm(Idle::GetInstance());
 
 Button manualOverrideButton(manualOverridePin, PinType::ANALOG);
 
+// Global variables
 Timer temperatureTimer(TimerType::REPEAT);
 LiquidCrystal lcd = LiquidCrystal(rs, en, d4, d5, d6, d7);
 Button menuButtonLeft(menuButtonLeftPin);
 Button menuButtonRight(menuButtonRightPin);
-
-
 const int manualOverridePin = A1;
 const int ldr = A0;
 const int menuButtonLeftPin = 2;
@@ -47,10 +44,11 @@ int redState = LOW;
 int greenState = LOW;
 int sprayCountIndex = 0;
 int sprayDelayIndex = 4;
+NewPing sonar(distTrig, distEcho, distance);
+const int tempTime = 1500;
 
-NewPing sonar(distTrig, distEcho, 50);
 
-Timer test(TimerType::REPEAT);
+const int distance = 58;
 
 void setup() {
   float read;
@@ -75,20 +73,24 @@ void setup() {
   pinMode(sprayPin, OUTPUT);
   sensor.begin();
   lcd.begin(16, 2);
-  temperatureTimer.Start(LCD, 2500);
+  temperatureTimer.Start(LCD, tempTime);
   LCD();
   AttachISR();
   manualOverrideButton.SetCallback(ManualOverrideSR);
 }
 
 void loop() {
+  /*
   temperatureTimer.Update();
   sm.Update();
   if (&sm.GetState() != InMenu::GetInstance()) {
     manualOverrideButton.Update();
   }
+  */
+  lcd.print(analogRead(ldr));
 }
 
+// Function to blink an LED
 void Blink(int const& pin, unsigned long& time, int& state) {
   if (millis() - time > 500) {
     digitalWrite(pin, state == HIGH ? LOW : HIGH);
@@ -109,6 +111,7 @@ void LCD() {
   lcd.print(sm.GetState().name);
 }
 
+// Transition to the triggered state with x amount of sprays
 State& FinishedUse(int sprayCount) {
   int read = analogRead(ldr);
   if (read < 512) {
@@ -126,6 +129,7 @@ void ManualOverrideSR() {
     Triggered::GetInstance()->count = 1;
 }
 
+// Attach and detach the interrupts for the menu buttons
 void AttachISR() {
   attachInterrupt(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISP, FALLING);
   attachInterrupt(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISP, FALLING);
@@ -136,34 +140,7 @@ void DetachISR() {
   detachInterrupt(digitalPinToInterrupt(menuButtonRightPin));
 }
 
-// Following 3 functions should by in 'Triggered'
-void Nr1() {
-  StartSpray([]() {}, sprayDelay);
-}
-
-void Nr2() {
-  StartSpray([]() {
-    StartSpray([]() {}, 0);
-  },
-             sprayDelay);  // don't wait with the second spray, only for the first one.
-}
-
-// what to do when spray is done, and how long to wait before spraying
-void StartSpray(void (*function)(), int time) {
-  /* broken
-  sm.SetState(&(Triggered)Triggered());
-  sprayTimer.Start(Spray, time); // Call spray after configurable delay
-  sprayFinishedTimer.Start([&]() {
-    sm.SetState(&(Idle)Idle());
-    (*function)();
-  }, time + 15000); // Spray happens after 15 seconds + configurable delay
-  */
-}
-
-void Spray() {
-  // spray!!!
-}
-
+// Interrupt service routine for the menu buttons
 void MenuOpenISP() {
   if (&sm.GetState() != InMenu::GetInstance())
     sm.NextState(InMenu::GetInstance());

@@ -38,6 +38,7 @@ extern const int magnetPin;
 extern NewPing sonar;
 extern const int sprayWaitTime;
 extern const int sprayPin;
+extern const int tempTime;
 
 // Forward declarations
 void MenuOpenISP();

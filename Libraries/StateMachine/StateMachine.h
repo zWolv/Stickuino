@@ -22,12 +22,11 @@ class StateMachine
 {
 public:
     StateMachine(State* state);
-
-    void SetState(volatile State* state);
     State& GetState() const;
     void NextState(State* state);
     void Update();
 private:
+    void SetState(volatile State* state);
     State* state;
     volatile State* nextState;
 };

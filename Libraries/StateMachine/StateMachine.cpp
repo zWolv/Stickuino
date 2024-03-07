@@ -25,6 +25,7 @@ void State::Exit()
     }
 }
 
+// Returns the state a state machine is in after updating
 State& State::Update() 
 {
     return *this;

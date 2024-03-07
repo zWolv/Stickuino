@@ -93,9 +93,9 @@ State& UnknownUse::Update() {
     return *Cleaning::GetInstance();
   }
   // Measure distances in the toilet from distance sensor to button.
-  if(distance > 20 && distance < 30 && !doorOpen) {
+  if(distance > 19 && distance <= 31 && !doorOpen) {
     return *Use1::GetInstance();
-  } else if(distance > 30 && distance < 40 && !doorOpen) {
+  } else if(distance > 31 && distance < 38 && !doorOpen) {
     return *Use2::GetInstance();
   }
 
@@ -353,7 +353,7 @@ State& InMenu::Update() {
 void InMenu::Exit() {
   State::Exit();
   AttachISR();
-  temperatureTimer.Start(LCD, 2500);
+  temperatureTimer.Start(LCD, tempTime);
   LCD();
   state = this;
   menuButtonLeft.SetCallback(nullptr);
