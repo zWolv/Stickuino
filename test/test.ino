@@ -81,6 +81,8 @@ void setup() {
   manualOverrideButton.SetCallback(ManualOverrideSR);
 }
 
+int doorState = LOW;
+int previousDoorState = LOW;
 void loop() {
   /*
   temperatureTimer.Update();
@@ -89,7 +91,21 @@ void loop() {
     manualOverrideButton.Update();
   }
   */
+  lcd.clear();
+  previousDoorState = doorState;
+  doorState = analogRead(magnetPin) > 512 ? HIGH : LOW;
+  if(doorState == HIGH && previousDoorState == LOW) { // Door is open
+    lcd.setCursor(0,1);
+    lcd.print("Door is open");
+  }
+  else if(doorState == LOW && previousDoorState == HIGH) { // Door is closed
+    lcd.setCursor(0,1);
+    lcd.print("Door is closed");
+  }
+
+  lcd.setCursor(0, 0);
   lcd.print(analogRead(ldr));
+  delay(500);
 }
 
 // Function to blink an LED
