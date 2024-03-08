@@ -85,7 +85,7 @@ State& UnknownUse::Update() {
 
   // Light turns off -> no use
   int light = analogRead(ldr);
-  if (light < 100) {
+  if (light < lightThreshold) {
     return *Idle::GetInstance();
   }
 
@@ -134,7 +134,7 @@ Use1* Use1::GetInstance() {
 State& Use1::Update() {
   // Use case 1 ended
   int read = analogRead(ldr);
-  if (read < 100) { // tweak this value
+  if (read < lightThreshold) {
     return FinishedUse(1); // 1 spray
   }
   return *this;
@@ -165,7 +165,7 @@ Use2* Use2::GetInstance() {
 State& Use2::Update() {
   // Use case 2 ended
   int read = analogRead(ldr);
-  if (read < 100) { // tweak this value
+  if (read < lightThreshold) { // tweak this value
     return FinishedUse(2); // 2 spray
   }
   return *this;
@@ -197,7 +197,7 @@ State& Cleaning::Update() {
   Blink(greenLED, greenTime, greenState);
   // Cleaning ended
   int read = analogRead(ldr);
-  if (read < 100) {
+  if (read < lightThreshold) {
     return *Idle::GetInstance();
   }
   return *this;

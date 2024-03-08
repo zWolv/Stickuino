@@ -39,6 +39,7 @@ extern NewPing sonar;
 extern const int sprayWaitTime;
 extern const int sprayPin;
 extern const int tempTime;
+extern const int lightThreshold;
 
 // Forward declarations
 void MenuOpenISP();
