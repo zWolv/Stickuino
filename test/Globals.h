@@ -3,10 +3,10 @@
 
 #include <LiquidCrystal.h>
 #include <Button.h>
-#include "States.h"
 #include <Timer.h>
 #include <NewPing.h>
 #include <StateMachine.h>
+
 
 
 // Global variables
@@ -40,14 +40,19 @@ extern const int sprayWaitTime;
 extern const int sprayPin;
 extern const int tempTime;
 extern const int lightThreshold;
+extern Timer sprayTimer;
 
 // Forward declarations
+class Triggered;
+
 void MenuOpenISP();
 void LCD();
 void AttachISR();
 void DetachISR();
 void EchoCheck();
-State& FinishedUse(int sprayCount);
+Triggered* FinishedUse(int sprayCount);
 void Blink(const int& pin, unsigned long& time, int& state);
+void Spray();
+void SprayFinished();
 
 #endif

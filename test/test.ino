@@ -49,7 +49,7 @@ int sprayDelayIndex = 4;
 NewPing sonar(distTrig, distEcho, distance);
 const int tempTime = 1500;
 const int lightThreshold = 680;
-
+Timer sprayTimer(TimerType::ONCE);
 
 
 
@@ -111,16 +111,16 @@ void LCD() {
   lcd.print((String)temp + " C");
   lcd.setCursor(0, 1);
   lcd.print("Sprays: " + (String)sprayCount);
-  lcd.setCursor(6, 1);
+  lcd.setCursor(6, 0);
   lcd.print(sm.GetState().name);
 }
 
 // Transition to the triggered state with x amount of sprays
-State& FinishedUse(int sprayCount) {
+Triggered* FinishedUse(int sprayCount) {
   int read = analogRead(ldr);
   if (read < 512) {
-    Triggered& state = *Triggered::GetInstance();
-    state.count = sprayCount;
+    Triggered* state = Triggered::GetInstance();
+    state->count = sprayCount;
     return state;
   }
 }
@@ -148,4 +148,19 @@ void DetachISR() {
 void MenuOpenISP() {
   if (&sm.GetState() != InMenu::GetInstance())
     sm.NextState(InMenu::GetInstance());
+}
+
+
+void Spray() {
+  // Do the spray
+  digitalWrite(sprayPin, HIGH);  
+  sprayTimer.Start(SprayFinished, sprayWaitTime); // Call SprayFinished after 25 seconds
+}
+
+void SprayFinished() {
+  digitalWrite(sprayPin, LOW);
+  Triggered::GetInstance()->count--;
+  if (Triggered::GetInstance()->count > 0) {
+    Spray();
+  }
 }

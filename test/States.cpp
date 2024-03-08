@@ -94,9 +94,9 @@ State& UnknownUse::Update() {
   }
   // Measure distances in the toilet from distance sensor to button.
   if(distance > 19 && distance <= 31 && !doorOpen) {
-    return *Use1::GetInstance();
-  } else if(distance > 31 && distance < 38 && !doorOpen) {
     return *Use2::GetInstance();
+  } else if(distance > 31 && distance < 38 && !doorOpen) {
+    return *Use1::GetInstance();
   }
 
   return *this;
@@ -135,7 +135,7 @@ State& Use1::Update() {
   // Use case 1 ended
   int read = analogRead(ldr);
   if (read < lightThreshold) {
-    return FinishedUse(1); // 1 spray
+    return *FinishedUse(1); // 1 spray
   }
   return *this;
 }
@@ -166,7 +166,7 @@ State& Use2::Update() {
   // Use case 2 ended
   int read = analogRead(ldr);
   if (read < lightThreshold) { // tweak this value
-    return FinishedUse(2); // 2 spray
+    return *FinishedUse(2); // 2 spray
   }
   return *this;
 }
@@ -211,8 +211,7 @@ void Cleaning::Exit() {
 
 // triggered - spray-shot imminent
 // RED BLINK
-Triggered::Triggered()
-  : timer(TimerType::ONCE) {
+Triggered::Triggered() {
   name = "Triggered";
 }
 
@@ -227,41 +226,23 @@ Triggered* Triggered::GetInstance() {
 
 void Triggered::Enter() {
   State::Enter();
-  timer.Start(TimerFunction, sprayDelay * 1000);  // use recursive function to call 'count' times - delay is in ms
-}
-
-static void Triggered::TimerFunction() {
-  Triggered::GetInstance()->Spray();
+  sprayTimer.Start(Spray, sprayDelay * 1000);  // use recursive function to call 'count' times - delay is in ms
 }
 
 void Triggered::Exit() {
   State::Exit();
-  timer.Stop();
+  sprayTimer.Stop();
   delete Triggered::instance;
   Triggered::instance = nullptr;
 }
 
 State& Triggered::Update() {
   Blink(redLED, redTime, redState);
-  timer.Update();
+  sprayTimer.Update();
   if(count <= 0) {
     return *Idle::GetInstance();
   }
   return *this;
-}
-
-static void Triggered::Spray() {
-  // Do the spray
-  digitalWrite(sprayPin, HIGH);  
-  Triggered::GetInstance()->timer.Start(SprayFinished, sprayWaitTime); // Call SprayFinished after 25 seconds
-}
-
-static void Triggered::SprayFinished() {
-  digitalWrite(sprayPin, LOW);
-  Triggered::GetInstance()->count--;
-  if (Triggered::GetInstance()->count > 0) {
-    Spray();
-  }
 }
 
 // operator menu active

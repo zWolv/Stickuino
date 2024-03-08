@@ -79,15 +79,9 @@ public:
   void Enter() override;
   State& Update() override;
   void Exit() override;
-  static void TimerFunction();
 private:
   static Triggered* instance;
   Triggered();
-  static void Spray();
-  static void SprayFinished();
-  Timer timer;
-  bool spraying;
-
 };
 
 class InMenu : public State {
