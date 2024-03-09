@@ -101,6 +101,12 @@ State& UnknownUse::Update() {
     return *Use1::GetInstance();
   }
 
+  lcd.setCursor(6,0);
+  lcd.print("      ");
+  lcd.setCursor(6,0);
+  lcd.print(distance);
+
+
   return *this;
 }
 

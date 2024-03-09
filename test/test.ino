@@ -107,8 +107,8 @@ void LCD() {
   lcd.print((String)temp + " C");
   lcd.setCursor(0, 1);
   lcd.print("Sprays: " + (String)sprayCount);
-  lcd.setCursor(6, 0);
-  lcd.print(sm.GetState().name);
+  //lcd.setCursor(6, 0);
+  //lcd.print(sm.GetState().name);
 }
 
 // Transition to the triggered state with x amount of sprays
