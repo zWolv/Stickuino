@@ -1,24 +1,24 @@
+// Our own libraries
 #include <Timer.h>
-#include <LiquidCrystal.h>
 #include <StateMachine.h>
 #include "States.h"
 #include "Globals.h"
+#include <Button.h>
+// Libraries not owned by us
+#include <LiquidCrystal.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
-#include <Button.h>
 #include <EEPROM.h>
 #include <NewPing.h>
 
+// Local variables
 OneWire oneWire(tempPin);
 DallasTemperature sensor(&oneWire);
-
 StateMachine sm(Idle::GetInstance());
-
 Button manualOverrideButton(manualOverridePin, PinType::ANALOG);
-
 const int distance = 58;
 
-// Global variables
+// Global variables -- These are marked extern in Globals.h
 Timer temperatureTimer(TimerType::REPEAT);
 LiquidCrystal lcd = LiquidCrystal(rs, en, d4, d5, d6, d7);
 Button menuButtonLeft(menuButtonLeftPin);
@@ -51,8 +51,6 @@ const int tempTime = 1500;
 const int lightThreshold = 680;
 Timer sprayTimer(TimerType::ONCE);
 
-
-
 void setup() {
   float read;
   read = EEPROM.get(sprayCountIndex, read);
@@ -82,8 +80,6 @@ void setup() {
   manualOverrideButton.SetCallback(ManualOverrideSR);
 }
 
-int doorState = LOW;
-int previousDoorState = LOW;
 void loop() {
   temperatureTimer.Update();
   sm.Update();

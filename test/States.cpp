@@ -12,10 +12,19 @@ void Idle::Enter() {
   previousMotionState = LOW;
 }
 
+Idle* Idle::instance = nullptr;
+
+Idle* Idle::GetInstance() {
+  if (Idle::instance == nullptr) {
+    Idle::instance = new Idle();
+  }
+  return Idle::instance;
+}
+
 State& Idle::Update() {
-  // Detect any use case and go to appropriate state
   Blink(redLED, redTime, redState);
   Blink(greenLED, greenTime, greenState);
+  // Detect movement and go to unknown use
   previousMotionState = motionState;
   motionState = digitalRead(motionPin);
   if (motionState == HIGH && previousMotionState == LOW) {
@@ -28,15 +37,6 @@ void Idle::Exit() {
   State::Exit();
   delete Idle::instance;
   Idle::instance = nullptr;
-}
-
-Idle* Idle::instance = nullptr;
-
-Idle* Idle::GetInstance() {
-  if (Idle::instance == nullptr) {
-    Idle::instance = new Idle();
-  }
-  return Idle::instance;
 }
 
 // In use - type of use unknown
@@ -67,12 +67,14 @@ UnknownUse* UnknownUse::GetInstance() {
 
 State& UnknownUse::Update() {
   Blink(greenLED, greenTime, greenState);
-  // Need to do some stuff to make usable for this purpose
   bool doorOpen = false;
+
+  // Update the distance with an event timer
   if(millis() >= pingTimer) {
     pingTimer += pingSpeed;
     sonar.ping_timer(EchoCheck);
   }
+  // Update door state
   previousDoorState = doorState;
   doorState = analogRead(magnetPin) > 512 ? HIGH : LOW;
   if(doorState == HIGH && previousDoorState == LOW) { // Door is open
@@ -92,6 +94,7 @@ State& UnknownUse::Update() {
   if(millis() - doorTime > 10000 && door) { // Door has been open for 10 seconds
     return *Cleaning::GetInstance();
   }
+
   // Measure distances in the toilet from distance sensor to button.
   if(distance > 19 && distance <= 31 && !doorOpen) {
     return *Use2::GetInstance();
@@ -132,7 +135,7 @@ Use1* Use1::GetInstance() {
 }
 
 State& Use1::Update() {
-  // Use case 1 ended
+  // light turns off -> no use
   int read = analogRead(ldr);
   if (read < lightThreshold) {
     return *FinishedUse(1); // 1 spray
@@ -163,10 +166,10 @@ Use2* Use2::GetInstance() {
 }
 
 State& Use2::Update() {
-  // Use case 2 ended
+  // light turns off -> no use
   int read = analogRead(ldr);
-  if (read < lightThreshold) { // tweak this value
-    return *FinishedUse(2); // 2 spray
+  if (read < lightThreshold) {
+    return *FinishedUse(2); // 2 sprays
   }
   return *this;
 }
@@ -195,7 +198,7 @@ Cleaning* Cleaning::GetInstance() {
 
 State& Cleaning::Update() {
   Blink(greenLED, greenTime, greenState);
-  // Cleaning ended
+  // light turns off -> no use
   int read = analogRead(ldr);
   if (read < lightThreshold) {
     return *Idle::GetInstance();
@@ -239,6 +242,7 @@ void Triggered::Exit() {
 State& Triggered::Update() {
   Blink(redLED, redTime, redState);
   sprayTimer.Update();
+  // No sprays left -> go to idle
   if(count <= 0) {
     return *Idle::GetInstance();
   }
@@ -279,7 +283,7 @@ State& InMenu::Update() {
   menuButtonLeft.Update();
   menuButtonRight.Update();
   switch (setting) {
-    case 0:
+    case 0: // Spray count
       if (previousSetting != setting) {
         lcd.clear();
         lcd.setCursor(0, 0);
@@ -291,7 +295,7 @@ State& InMenu::Update() {
         previousSetting = setting;
       }
       break;
-    case 1:
+    case 1: // Spray delay not selected
       if (previousSetting != setting) {
         lcd.clear();
         lcd.setCursor(0, 1);
@@ -303,7 +307,7 @@ State& InMenu::Update() {
       lcd.setCursor(0, 0);
       lcd.print("Spray delay:" + (String)sprayDelay + "s");
       break;
-    case -1:
+    case -1: // Spray delay selected
       if (previousSetting != setting) {
         lcd.clear();
         lcd.setCursor(0, 1);
@@ -316,7 +320,7 @@ State& InMenu::Update() {
       }
       lcd.setCursor(0, 0);
       lcd.print("Spray delay:" + (String)sprayDelay);
-      // Hold both buttons for 2 seconds to go back to selection.
+      // Hold both buttons for 2 seconds to deselect spray delay and save it.
       if (menuButtonLeft.PressedFor() > 2000 && menuButtonRight.PressedFor() > 2000 
       && menuButtonLeft.IsClicked() && menuButtonRight.IsClicked()) {
         setting = 1;
@@ -344,13 +348,13 @@ void InMenu::Exit() {
 void InMenu::LeftButton() {
   // Left button action
   switch (InMenu::GetInstance()->setting) {
-    case 0:
+    case 0: // Spray count
       InMenu::GetInstance()->setting = 1;
       break;
-    case 1:
+    case 1: // Spray delay not selected
       InMenu::GetInstance()->state = Idle::GetInstance();
       break;
-    case -1:
+    case -1: // Spray delay selected
       sprayDelay = max(0, sprayDelay - 0.5f);
     default:
       break;
@@ -359,17 +363,16 @@ void InMenu::LeftButton() {
 
 void InMenu::RightButton() {
   // Right button action
-
   switch (InMenu::GetInstance()->setting) {
-    case 0:
+    case 0: // Spray count
       sprayCount = maxSprayCount;
       EEPROM.update(sprayCountIndex, sprayCount);
       break;
-    case 1:
+    case 1: // Spray delay not selected
       InMenu::GetInstance()->setting = -1;
       InMenu::GetInstance()->temp = sprayDelay;
       break;
-    case -1:
+    case -1: // Spray delay selected
       sprayDelay = min(INT8_MAX, sprayDelay + 0.5f);
     default:
       break;
