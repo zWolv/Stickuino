@@ -1,3 +1,8 @@
+/*
+WRITTEN BY THOMAS VAN EGMOND
+8471533
+*/
+
 #ifndef TIMER_H
 #define TIMER_H
 

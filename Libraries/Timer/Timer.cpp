@@ -1,3 +1,8 @@
+/*
+WRITTEN BY THOMAS VAN EGMOND
+8471533
+*/
+
 #include "Timer.h"
 
 Timer::Timer(TimerType type) 

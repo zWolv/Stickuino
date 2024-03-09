@@ -1,3 +1,9 @@
+/*
+WRITTEN BY THOMAS VAN EGMOND
+8471533
+*/
+
+
 #ifndef BUTTON_H
 #define BUTTON_H
 
