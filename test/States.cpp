@@ -67,7 +67,6 @@ UnknownUse* UnknownUse::GetInstance() {
 
 State& UnknownUse::Update() {
   Blink(greenLED, greenTime, greenState);
-  bool doorOpen = false;
 
   // Update the distance with an event timer
   if(millis() >= pingTimer) {
