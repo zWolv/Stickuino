@@ -96,9 +96,9 @@ State& UnknownUse::Update() {
   }
 
   // Measure distances in the toilet from distance sensor to button.
-  if(distance > 19 && distance <= 31 && !doorOpen) {
+  if(distance > 19 && distance <= 31) {
     return *Use2::GetInstance();
-  } else if(distance > 31 && distance < 38 && !doorOpen) {
+  } else if(distance > 31 && distance < 38) {
     return *Use1::GetInstance();
   }
 
