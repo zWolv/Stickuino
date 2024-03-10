@@ -45,7 +45,6 @@ extern Timer sprayTimer;
 // Forward declarations
 class Triggered;
 
-void MenuOpenISP();
 void LCD();
 void AttachISR();
 void DetachISR();

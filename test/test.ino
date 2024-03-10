@@ -131,8 +131,8 @@ void ManualOverrideSR() {
 
 // Attach and detach the interrupts for the menu buttons
 void AttachISR() {
-  attachInterrupt(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISP, FALLING);
-  attachInterrupt(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISP, FALLING);
+  attachInterrupt(digitalPinToInterrupt(menuButtonLeftPin), MenuOpenISR, FALLING);
+  attachInterrupt(digitalPinToInterrupt(menuButtonRightPin), MenuOpenISR, FALLING);
 }
 
 void DetachISR() {
@@ -141,7 +141,7 @@ void DetachISR() {
 }
 
 // Interrupt service routine for the menu buttons
-void MenuOpenISP() {
+void MenuOpenISR() {
   if (&sm.GetState() != InMenu::GetInstance())
     sm.NextState(InMenu::GetInstance());
 }
