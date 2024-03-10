@@ -49,7 +49,6 @@ void MenuOpenISP();
 void LCD();
 void AttachISR();
 void DetachISR();
-void EchoCheck();
 Triggered* FinishedUse(int sprayCount);
 void Blink(const int& pin, unsigned long& time, int& state);
 void Spray();
