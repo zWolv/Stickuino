@@ -52,6 +52,7 @@ const int lightThreshold = 680;
 Timer sprayTimer(TimerType::ONCE);
 
 void setup() {
+  // Read the spray count and delay from EEPROM if they are there, otherwise write them to EEPROM
   float read;
   read = EEPROM.get(sprayCountIndex, read);
   if (isnan(read)) {
@@ -65,7 +66,6 @@ void setup() {
   } else {
     sprayDelay = read;
   }
-  Serial.begin(9600);  // takes up a LOT of memory. -> use lcd for debugging
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(tempPin, INPUT);
@@ -150,13 +150,13 @@ void MenuOpenISR() {
 void Spray() {
   // Do the spray
   digitalWrite(sprayPin, HIGH);  
-  sprayTimer.Start(SprayFinished, sprayWaitTime); // Call SprayFinished after 25 seconds
+  sprayTimer.Start(SprayFinished, sprayWaitTime); // Call SprayFinished after 20 seconds
 }
 
 void SprayFinished() {
   digitalWrite(sprayPin, LOW);
   Triggered::GetInstance()->count--;
   if (Triggered::GetInstance()->count > 0) {
-    Spray();
+    sprayTimer.Start(Spray, sprayWaitTime); // call spray again after 20 seconds
   }
 }
